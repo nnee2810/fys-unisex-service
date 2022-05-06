@@ -5,9 +5,9 @@ import { limitPerPage } from "src/configs/constants"
 export class PaginationDto {
   @IsOptional()
   @IsNumber()
-  @Min(1)
+  @Min(0)
   @Type(() => Number)
-  page?: number = 1
+  page?: number = 0
 
   @IsOptional()
   @IsNumber()

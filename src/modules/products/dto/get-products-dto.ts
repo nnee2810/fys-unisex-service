@@ -1,5 +1,5 @@
 import { Type } from "class-transformer"
-import { IsBoolean, IsOptional } from "class-validator"
+import { IsBoolean, IsNumber, IsOptional } from "class-validator"
 import { PaginationDto } from "src/dto/pagination-dto"
 
 export class GetProductsDto extends PaginationDto {
@@ -11,6 +11,19 @@ export class GetProductsDto extends PaginationDto {
 
   @IsOptional()
   gender?: string
+
+  @IsOptional()
+  size?: string
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  minPrice?: number
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  maxPrice?: number
 
   @IsOptional()
   @IsBoolean()
@@ -26,4 +39,7 @@ export class GetProductsDto extends PaginationDto {
   @IsBoolean()
   @Type(() => Boolean)
   isFeatured?: boolean
+
+  @IsOptional()
+  sort?: "time" | "price-asc" | "price-desc" | "percent"
 }
