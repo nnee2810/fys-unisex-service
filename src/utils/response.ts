@@ -19,12 +19,3 @@ export function successResponse<T>(data: T): Response<T> {
     data,
   }
 }
-export function paginationResponse<T>(
-  data: PaginationData<T>,
-): Response<PaginationData<T>> {
-  return {
-    status: HttpStatus.OK,
-    message: "Success",
-    data,
-  }
-}

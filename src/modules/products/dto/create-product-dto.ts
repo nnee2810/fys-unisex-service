@@ -1,11 +1,18 @@
-import { IsArray, IsBoolean, IsNumber, IsString } from "class-validator"
+import {
+  IsArray,
+  IsBoolean,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from "class-validator"
 
 export class CreateProductDto {
   @IsString()
   name: string
 
+  @IsOptional()
   @IsArray()
-  images: string[]
+  images?: string[]
 
   @IsString()
   type: string
@@ -16,15 +23,23 @@ export class CreateProductDto {
   @IsNumber()
   price: number
 
+  @IsOptional()
   @IsNumber()
-  salePrice: number
+  forSale: boolean
 
-  @IsBoolean()
-  isSale: boolean
+  @IsOptional()
+  @IsNumber()
+  salePrice?: number
 
+  @IsOptional()
   @IsBoolean()
-  inStock: boolean
+  isSale?: boolean
 
+  @IsOptional()
   @IsBoolean()
-  isFeatured: boolean
+  inStock?: boolean
+
+  @IsOptional()
+  @IsBoolean()
+  isFeatured?: boolean
 }

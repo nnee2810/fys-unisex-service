@@ -1,14 +1,6 @@
 import { Body, Controller, Get, Post, Query } from "@nestjs/common"
-import {
-  Product,
-  ProductDocument,
-} from "src/modules/products/schemas/product.shema"
-import {
-  PaginationData,
-  paginationResponse,
-  Response,
-  successResponse,
-} from "src/utils/response"
+import { Product } from "src/entities/product.entity"
+import { PaginationData, Response, successResponse } from "src/utils/response"
 import { CreateProductDto } from "./dto/create-product-dto"
 import { GetProductsDto } from "./dto/get-products-dto"
 import { ProductsService } from "./products.service"
@@ -22,13 +14,13 @@ export class ProductsController {
     @Query() query: GetProductsDto,
   ): Promise<Response<PaginationData<Product[]>>> {
     const products = await this.productsService.getProducts(query)
-    return paginationResponse(products)
+    return successResponse(products)
   }
 
   @Post()
   async createProduct(
     @Body() body: CreateProductDto,
-  ): Promise<Response<ProductDocument>> {
+  ): Promise<Response<Product>> {
     const product = await this.productsService.createProduct(body)
     return successResponse(product)
   }

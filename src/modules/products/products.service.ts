@@ -1,20 +1,26 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common"
-import { InjectModel } from "@nestjs/mongoose"
-import { Model } from "mongoose"
+import { InjectRepository } from "@nestjs/typeorm"
 import { limitPerPage } from "src/configs/constants"
-import {
-  Product,
-  ProductDocument,
-} from "src/modules/products/schemas/product.shema"
+import { Product } from "src/entities/product.entity"
 import { PaginationData } from "src/utils/response"
+import {
+  ArrayContains,
+  Between,
+  FindOptionsOrder,
+  FindOptionsWhere,
+  LessThanOrEqual,
+  Like,
+  MoreThanOrEqual,
+  Repository,
+} from "typeorm"
 import { CreateProductDto } from "./dto/create-product-dto"
 import { GetProductsDto } from "./dto/get-products-dto"
 
 @Injectable()
 export class ProductsService {
   constructor(
-    @InjectModel(Product.name)
-    private readonly productModel: Model<ProductDocument>,
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
   ) {}
 
   async getProducts({
@@ -24,6 +30,7 @@ export class ProductsService {
     size,
     minPrice,
     maxPrice,
+    forSale,
     inStock,
     isSale,
     isFeatured,
@@ -32,37 +39,41 @@ export class ProductsService {
     limit = limitPerPage,
   }: GetProductsDto): Promise<PaginationData<Product[]>> {
     try {
-      let findQuery = {}
-      if (name) findQuery["name"] = new RegExp(name, "i")
-      if (type) findQuery["type"] = type
-      if (gender) findQuery["gender"] = gender
-      if (size) findQuery["size"] = size
-      if (minPrice) findQuery["minPrice"]["$gt"] = minPrice
-      if (maxPrice) findQuery["maxPrice"]["$lt"] = maxPrice
-      if (inStock) findQuery["inStock"] = inStock
-      if (isSale) findQuery["isSale"] = isSale
-      if (isFeatured) findQuery["isFeatured"] = isFeatured
+      let whereOption: FindOptionsWhere<Product> = {}
+      if (name) whereOption.name = Like("%" + name + "%")
+      if (type) whereOption.type = type
+      if (gender) whereOption.gender = gender
+      if (size) whereOption.sizes = ArrayContains([size])
+      if (minPrice) whereOption.price = MoreThanOrEqual(minPrice)
+      if (maxPrice) whereOption.price = LessThanOrEqual(maxPrice)
+      if (minPrice && maxPrice) whereOption.price = Between(minPrice, maxPrice)
+      if (forSale) whereOption.forSale = forSale
+      if (inStock) whereOption.inStock = inStock
+      if (isSale) whereOption.isSale = isSale
+      if (isFeatured) whereOption.isFeatured = isFeatured
 
-      let sortQuery = {}
+      let orderOption: FindOptionsOrder<Product> = {}
       switch (sort) {
         case "time":
-          sortQuery["updatedAt"] = -1
-          return
+          orderOption["updatedAt"] = "desc"
+          break
         case "price-asc":
-          sortQuery["price"] = 1
-          return
+          orderOption.price = "asc"
+          break
         case "price-desc":
-          sortQuery["price"] = -1
-          return
-        case "percent":
+          orderOption.price = "desc"
+          break
+        case "percent": {
+          break
+        }
       }
 
-      const products = await this.productModel
-        .find(findQuery)
-        .sort(sortQuery)
-        .skip(page * limit)
-        .skip(limit)
-      const total = await this.productModel.find(findQuery).count()
+      const [products, total] = await this.productRepository.findAndCount({
+        where: whereOption,
+        order: orderOption,
+        skip: page * limit,
+        take: limit,
+      })
 
       return {
         data: products,
@@ -75,8 +86,13 @@ export class ProductsService {
     }
   }
 
-  async createProduct(body: CreateProductDto): Promise<ProductDocument> {
-    const productDocument = await this.productModel.create(body)
-    return productDocument
+  async createProduct(body: CreateProductDto): Promise<Product> {
+    try {
+      const product = this.productRepository.create(body)
+      await this.productRepository.insert(product)
+      return product
+    } catch (error) {
+      throw new InternalServerErrorException(error)
+    }
   }
 }

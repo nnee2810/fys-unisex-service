@@ -26,6 +26,11 @@ export class GetProductsDto extends PaginationDto {
   maxPrice?: number
 
   @IsOptional()
+  @IsNumber()
+  @Type(() => Boolean)
+  forSale?: boolean
+
+  @IsOptional()
   @IsBoolean()
   @Type(() => Boolean)
   inStock?: boolean
