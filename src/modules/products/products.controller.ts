@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Query } from "@nestjs/common"
+import {
+  Body,
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+  Query,
+} from "@nestjs/common"
 import { Product } from "src/entities/product.entity"
 import { PaginationData, Response, successResponse } from "src/utils/response"
 import { CreateProductDto } from "./dto/create-product-dto"
@@ -15,6 +23,15 @@ export class ProductsController {
   ): Promise<Response<PaginationData<Product[]>>> {
     const products = await this.productsService.getProducts(query)
     return successResponse(products)
+  }
+
+  @Get(":id")
+  async getProduct(
+    @Param() params: { id: string },
+  ): Promise<Response<Product>> {
+    const product = await this.productsService.getProduct(params.id)
+    if (!product) throw new NotFoundException()
+    return successResponse(product)
   }
 
   @Post()

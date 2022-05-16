@@ -82,7 +82,21 @@ export class ProductsService {
         total,
       }
     } catch (error) {
-      throw new InternalServerErrorException(error)
+      console.log(error)
+    }
+  }
+
+  async getProduct(id: string): Promise<Product> {
+    try {
+      const product = await this.productRepository.findOne({
+        where: {
+          id,
+        },
+      })
+      return product
+    } catch (error) {
+      console.log(error)
+      throw new InternalServerErrorException()
     }
   }
 
