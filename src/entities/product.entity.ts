@@ -61,8 +61,8 @@ export class Product {
   isFeatured: boolean
 
   @CreateDateColumn()
-  createdAt: Date
+  createdAt: string
 
   @UpdateDateColumn()
-  updatedAt: Date
+  updatedAt: string
 }
