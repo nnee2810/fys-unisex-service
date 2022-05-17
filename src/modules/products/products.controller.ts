@@ -8,7 +8,7 @@ import {
   Query,
 } from "@nestjs/common"
 import { Product } from "src/entities/product.entity"
-import { PaginationData, Response, successResponse } from "src/utils/response"
+import { PaginationData, Response, successResponse } from "src/helpers/response"
 import { CreateProductDto } from "./dto/create-product-dto"
 import { GetProductsDto } from "./dto/get-products-dto"
 import { ProductsService } from "./products.service"

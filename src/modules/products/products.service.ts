@@ -2,7 +2,8 @@ import { Injectable, InternalServerErrorException } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
 import { limitPerPage } from "src/configs/constants"
 import { Product } from "src/entities/product.entity"
-import { PaginationData } from "src/utils/response"
+import { errorResponse, PaginationData } from "src/helpers/response"
+import { getQueryError } from "src/utils/getQueryError"
 import {
   ArrayContains,
   Between,
@@ -82,7 +83,9 @@ export class ProductsService {
         total,
       }
     } catch (error) {
-      console.log(error)
+      throw new InternalServerErrorException(
+        errorResponse(getQueryError(error)),
+      )
     }
   }
 
@@ -95,8 +98,9 @@ export class ProductsService {
       })
       return product
     } catch (error) {
-      console.log(error)
-      throw new InternalServerErrorException()
+      throw new InternalServerErrorException(
+        errorResponse(getQueryError(error)),
+      )
     }
   }
 
@@ -106,7 +110,9 @@ export class ProductsService {
       await this.productRepository.insert(product)
       return product
     } catch (error) {
-      throw new InternalServerErrorException(error)
+      throw new InternalServerErrorException(
+        errorResponse(getQueryError(error)),
+      )
     }
   }
 }

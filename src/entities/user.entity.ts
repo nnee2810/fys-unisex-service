@@ -11,17 +11,42 @@ export class User {
   @PrimaryGeneratedColumn("uuid")
   id: string
 
-  @Column()
-  fullName: string
-
-  @Column()
+  @Column({
+    default: "",
+    unique: true,
+  })
   email: string
 
-  @Column()
+  @Column({
+    default: "",
+  })
+  password: string
+
+  @Column({
+    default: "",
+  })
+  fullName: string
+
+  @Column({
+    default: "",
+  })
+  image: string
+
+  @Column({
+    default: "",
+    unique: true,
+  })
   phone: string
 
-  @Column()
+  @Column({
+    default: "",
+  })
   address: string
+
+  @Column({
+    default: "customer",
+  })
+  role: string
 
   @CreateDateColumn()
   createdAt: string
