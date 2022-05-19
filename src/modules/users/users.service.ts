@@ -14,16 +14,15 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async createUser(body: CreateUserDto): Promise<User> {
+  async createUser(data: CreateUserDto): Promise<void> {
     try {
-      const hashedPassword = await bcrypt.hash(body.password, 10)
+      const hashedPassword = await bcrypt.hash(data.password, 10)
 
       const user = this.userRepository.create({
-        ...body,
+        ...data,
         password: hashedPassword,
       })
       await this.userRepository.insert(user)
-      return user
     } catch (error) {
       throw new InternalServerErrorException(
         errorResponse(getQueryError(error)),

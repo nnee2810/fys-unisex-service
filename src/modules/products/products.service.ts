@@ -104,9 +104,9 @@ export class ProductsService {
     }
   }
 
-  async createProduct(body: CreateProductDto): Promise<Product> {
+  async createProduct(data: CreateProductDto): Promise<Product> {
     try {
-      const product = this.productRepository.create(body)
+      const product = this.productRepository.create(data)
       await this.productRepository.insert(product)
       return product
     } catch (error) {
