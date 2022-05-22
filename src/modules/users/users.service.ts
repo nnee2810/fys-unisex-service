@@ -1,32 +1,68 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
-import * as bcrypt from "bcrypt"
-import { User } from "src/entities/user.entity"
-import { errorResponse } from "src/helpers/response"
+import { MESSAGE } from "src/configs/constants"
+import { UserEntity } from "src/modules/users/entities/user.entity"
 import { getQueryError } from "src/utils/getQueryError"
-import { Repository } from "typeorm"
-import { CreateUserDto } from "./dto/create-user.dto"
+import {
+  FindOptionsSelect,
+  FindOptionsSelectByString,
+  FindOptionsWhere,
+  QueryFailedError,
+  Repository,
+} from "typeorm"
+import { SignUpDto } from "../auth/dto/sign-up.dto"
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    @InjectRepository(UserEntity)
+    private readonly usersRepository: Repository<UserEntity>,
   ) {}
 
-  async createUser(data: CreateUserDto): Promise<void> {
+  async getUser({
+    select,
+    where,
+  }: {
+    select?:
+      | FindOptionsSelect<UserEntity>
+      | FindOptionsSelectByString<UserEntity>
+    where?: FindOptionsWhere<UserEntity> | FindOptionsWhere<UserEntity>[]
+  }): Promise<UserEntity> {
     try {
-      const hashedPassword = await bcrypt.hash(data.password, 10)
-
-      const user = this.userRepository.create({
-        ...data,
-        password: hashedPassword,
+      const user = await this.usersRepository.findOne({
+        select,
+        where,
       })
-      await this.userRepository.insert(user)
+      return user
     } catch (error) {
-      throw new InternalServerErrorException(
-        errorResponse(getQueryError(error)),
-      )
+      if (error instanceof QueryFailedError) {
+        console.log(error)
+      }
+      throw new InternalServerErrorException(MESSAGE.ERROR)
+    }
+  }
+
+  async createUser(data: SignUpDto): Promise<UserEntity> {
+    try {
+      const user = this.usersRepository.create(data)
+      await this.usersRepository.insert(user)
+      return user
+    } catch (error) {
+      let message = MESSAGE.ERROR
+      if (error instanceof QueryFailedError) {
+        const { code, column } = getQueryError(error)
+        if (code === "23505")
+          switch (column) {
+            case "email":
+              message = MESSAGE.EMAIL_ALREADY_EXIST
+              break
+
+            case "phone":
+              message = MESSAGE.PHONE_ALREADY_EXIST
+              break
+          }
+      }
+      throw new InternalServerErrorException(message)
     }
   }
 }

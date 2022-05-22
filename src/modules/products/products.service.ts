@@ -1,9 +1,8 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
-import { limitPerPage } from "src/configs/constants"
-import { Product } from "src/entities/product.entity"
-import { errorResponse, PaginationData } from "src/helpers/response"
-import { getQueryError } from "src/utils/getQueryError"
+import { LIMIT_PER_PAGE, MESSAGE } from "src/configs/constants"
+import { IPaginationData } from "src/helpers/response"
+import { ProductEntity } from "src/modules/products/entities/product.entity"
 import {
   ArrayContains,
   Between,
@@ -20,8 +19,8 @@ import { GetProductsDto } from "./dto/get-products-dto"
 @Injectable()
 export class ProductsService {
   constructor(
-    @InjectRepository(Product)
-    private readonly productRepository: Repository<Product>,
+    @InjectRepository(ProductEntity)
+    private readonly productsRepository: Repository<ProductEntity>,
   ) {}
 
   async getProducts({
@@ -37,10 +36,10 @@ export class ProductsService {
     isFeatured,
     sort,
     page = 1,
-    limit = limitPerPage,
-  }: GetProductsDto): Promise<PaginationData<Product[]>> {
+    limit = LIMIT_PER_PAGE,
+  }: GetProductsDto): Promise<IPaginationData<ProductEntity[]>> {
     try {
-      let whereOption: FindOptionsWhere<Product> = {}
+      let whereOption: FindOptionsWhere<ProductEntity> = {}
       if (name) whereOption.name = Like("%" + name + "%")
       if (type) whereOption.type = type
       if (gender) whereOption.gender = gender
@@ -53,7 +52,7 @@ export class ProductsService {
       if (isSale) whereOption.isSale = isSale
       if (isFeatured) whereOption.isFeatured = isFeatured
 
-      let orderOption: FindOptionsOrder<Product> = {}
+      let orderOption: FindOptionsOrder<ProductEntity> = {}
       switch (sort) {
         case "time":
           orderOption["updatedAt"] = "desc"
@@ -69,7 +68,7 @@ export class ProductsService {
         }
       }
 
-      const [products, total] = await this.productRepository.findAndCount({
+      const [products, total] = await this.productsRepository.findAndCount({
         where: whereOption,
         order: orderOption,
         skip: page * limit,
@@ -83,36 +82,30 @@ export class ProductsService {
         total,
       }
     } catch (error) {
-      throw new InternalServerErrorException(
-        errorResponse(getQueryError(error)),
-      )
+      throw new InternalServerErrorException(MESSAGE.ERROR)
     }
   }
 
-  async getProduct(id: string): Promise<Product> {
+  async getProduct(id: string): Promise<ProductEntity> {
     try {
-      const product = await this.productRepository.findOne({
+      const product = await this.productsRepository.findOne({
         where: {
           id,
         },
       })
       return product
     } catch (error) {
-      throw new InternalServerErrorException(
-        errorResponse(getQueryError(error)),
-      )
+      throw new InternalServerErrorException(MESSAGE.ERROR)
     }
   }
 
-  async createProduct(data: CreateProductDto): Promise<Product> {
+  async createProduct(data: CreateProductDto): Promise<ProductEntity> {
     try {
-      const product = this.productRepository.create(data)
-      await this.productRepository.insert(product)
+      const product = this.productsRepository.create(data)
+      await this.productsRepository.insert(product)
       return product
     } catch (error) {
-      throw new InternalServerErrorException(
-        errorResponse(getQueryError(error)),
-      )
+      throw new InternalServerErrorException(MESSAGE.ERROR)
     }
   }
 }

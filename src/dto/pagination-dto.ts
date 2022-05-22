@@ -1,6 +1,6 @@
 import { Type } from "class-transformer"
 import { IsNumber, IsOptional, Min } from "class-validator"
-import { limitPerPage } from "src/configs/constants"
+import { LIMIT_PER_PAGE } from "src/configs/constants"
 
 export class PaginationDto {
   @IsOptional()
@@ -13,5 +13,5 @@ export class PaginationDto {
   @IsNumber()
   @Min(1)
   @Type(() => Number)
-  limit?: number = limitPerPage
+  limit?: number = LIMIT_PER_PAGE
 }

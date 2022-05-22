@@ -7,8 +7,12 @@ import {
   Post,
   Query,
 } from "@nestjs/common"
-import { Product } from "src/entities/product.entity"
-import { PaginationData, Response, successResponse } from "src/helpers/response"
+import {
+  IPaginationData,
+  IResponse,
+  successResponse,
+} from "src/helpers/response"
+import { ProductEntity } from "src/modules/products/entities/product.entity"
 import { CreateProductDto } from "./dto/create-product-dto"
 import { GetProductsDto } from "./dto/get-products-dto"
 import { ProductsService } from "./products.service"
@@ -20,7 +24,7 @@ export class ProductsController {
   @Get()
   async getProducts(
     @Query() query: GetProductsDto,
-  ): Promise<Response<PaginationData<Product[]>>> {
+  ): Promise<IResponse<IPaginationData<ProductEntity[]>>> {
     const products = await this.productsService.getProducts(query)
     return successResponse(products)
   }
@@ -28,7 +32,7 @@ export class ProductsController {
   @Get(":id")
   async getProduct(
     @Param() params: { id: string },
-  ): Promise<Response<Product>> {
+  ): Promise<IResponse<ProductEntity>> {
     const product = await this.productsService.getProduct(params.id)
     if (!product) throw new NotFoundException()
     return successResponse(product)
@@ -37,7 +41,7 @@ export class ProductsController {
   @Post()
   async createProduct(
     @Body() body: CreateProductDto,
-  ): Promise<Response<Product>> {
+  ): Promise<IResponse<ProductEntity>> {
     const product = await this.productsService.createProduct(body)
     return successResponse(product)
   }
