@@ -30,10 +30,8 @@ export class ProductsController {
   }
 
   @Get(":id")
-  async getProduct(
-    @Param() params: { id: string },
-  ): Promise<IResponse<ProductEntity>> {
-    const product = await this.productsService.getProduct(params.id)
+  async getProduct(@Param("id") id: string): Promise<IResponse<ProductEntity>> {
+    const product = await this.productsService.getProduct(id)
     if (!product) throw new NotFoundException()
     return successResponse(product)
   }

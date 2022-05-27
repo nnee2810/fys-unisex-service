@@ -10,7 +10,8 @@ import {
   QueryFailedError,
   Repository,
 } from "typeorm"
-import { SignUpDto } from "../auth/dto/sign-up.dto"
+import { CreateUserDto } from "./dto/create-user.dto"
+import { UpdateUserProfileDto } from "./dto/update-user-profile.dto"
 
 @Injectable()
 export class UsersService {
@@ -35,14 +36,11 @@ export class UsersService {
       })
       return user
     } catch (error) {
-      if (error instanceof QueryFailedError) {
-        console.log(error)
-      }
       throw new InternalServerErrorException(MESSAGE.ERROR)
     }
   }
 
-  async createUser(data: SignUpDto): Promise<UserEntity> {
+  async createUser(data: CreateUserDto): Promise<UserEntity> {
     try {
       const user = this.usersRepository.create(data)
       await this.usersRepository.insert(user)
@@ -63,6 +61,25 @@ export class UsersService {
           }
       }
       throw new InternalServerErrorException(message)
+    }
+  }
+
+  async updateUserProfile(
+    id: string,
+    data: UpdateUserProfileDto,
+  ): Promise<UserEntity> {
+    try {
+      const profile = (
+        await this.usersRepository.update(
+          {
+            id,
+          },
+          data,
+        )
+      ).raw[0] as UserEntity
+      return profile
+    } catch (error) {
+      throw new InternalServerErrorException(MESSAGE.ERROR)
     }
   }
 }

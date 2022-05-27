@@ -16,25 +16,18 @@ export class UserEntity {
 
   @Column({
     default: "",
-    unique: true,
-  })
-  email: string
-
-  @Column({
-    default: "",
-    select: false,
-  })
-  password: string
-
-  @Column({
-    default: "",
   })
   fullName: string
 
   @Column({
     default: "",
   })
-  image: string
+  gender: Gender
+
+  @Column({
+    default: "",
+  })
+  image?: string
 
   @Column({
     default: "",
@@ -44,19 +37,45 @@ export class UserEntity {
 
   @Column({
     default: "",
+    unique: true,
+  })
+  email: string
+
+  @Column({
+    select: false,
+  })
+  password: string
+
+  @Column({
+    default: "",
   })
   address: string
 
   @Column({
+    default: "",
+  })
+  province: string
+
+  @Column({
+    default: "",
+  })
+  district: string
+
+  @Column({
+    default: "",
+  })
+  ward: string
+
+  @Column({
     default: "customer",
   })
-  role: string
+  role: Role
 
   @CreateDateColumn()
   createdAt: string
 
   @UpdateDateColumn()
-  updatedAt: Date
+  updatedAt: string
 
   @BeforeInsert()
   @BeforeUpdate()
@@ -65,4 +84,13 @@ export class UserEntity {
       this.password = await bcrypt.hash(this.password, 10)
     }
   }
+}
+export enum Role {
+  CUSTOMER = "customer",
+  MOD = "mod",
+  ADMIN = "admin",
+}
+export enum Gender {
+  MALE = "male",
+  FEMALE = "female",
 }
