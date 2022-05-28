@@ -9,6 +9,16 @@ import {
   UpdateDateColumn,
 } from "typeorm"
 
+export enum Role {
+  Customer = "customer",
+  Mod = "mod",
+  Admin = "admin",
+}
+export enum Gender {
+  Male = "male",
+  Female = "female",
+}
+
 @Entity("users")
 export class UserEntity {
   @PrimaryGeneratedColumn("uuid")
@@ -67,7 +77,9 @@ export class UserEntity {
   ward: string
 
   @Column({
-    default: "customer",
+    type: "enum",
+    enum: Role,
+    default: Role.Customer,
   })
   role: Role
 
@@ -84,13 +96,4 @@ export class UserEntity {
       this.password = await bcrypt.hash(this.password, 10)
     }
   }
-}
-export enum Role {
-  CUSTOMER = "customer",
-  MOD = "mod",
-  ADMIN = "admin",
-}
-export enum Gender {
-  MALE = "male",
-  FEMALE = "female",
 }

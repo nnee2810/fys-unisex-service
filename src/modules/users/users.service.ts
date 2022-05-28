@@ -69,14 +69,10 @@ export class UsersService {
     data: UpdateUserProfileDto,
   ): Promise<UserEntity> {
     try {
-      const profile = (
-        await this.usersRepository.update(
-          {
-            id,
-          },
-          data,
-        )
-      ).raw[0] as UserEntity
+      const profile = await this.usersRepository.save({
+        id,
+        ...data,
+      })
       return profile
     } catch (error) {
       throw new InternalServerErrorException(MESSAGE.ERROR)
