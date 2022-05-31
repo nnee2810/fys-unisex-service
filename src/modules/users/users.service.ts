@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
-import { MESSAGE } from "src/configs/constants"
+import { Message } from "src/configs/constants"
 import { UserEntity } from "src/modules/users/entities/user.entity"
 import { getQueryError } from "src/utils/getQueryError"
 import {
@@ -36,7 +36,7 @@ export class UsersService {
       })
       return user
     } catch (error) {
-      throw new InternalServerErrorException(MESSAGE.ERROR)
+      throw new InternalServerErrorException(Message.ERROR)
     }
   }
 
@@ -46,21 +46,21 @@ export class UsersService {
       await this.usersRepository.insert(user)
       return user
     } catch (error) {
-      let message = MESSAGE.ERROR
+      let message = Message.ERROR
       if (error instanceof QueryFailedError) {
         const { code, column } = getQueryError(error)
         if (code === "23505")
           switch (column) {
             case "email":
-              message = MESSAGE.EMAIL_ALREADY_EXIST
+              message = Message.EMAIL_ALREADY_EXIST
               break
 
             case "phone":
-              message = MESSAGE.PHONE_ALREADY_EXIST
+              message = Message.PHONE_ALREADY_EXIST
               break
           }
       }
-      throw new InternalServerErrorException(message)
+      throw new InternalServerErrorException(Message)
     }
   }
 
@@ -75,7 +75,7 @@ export class UsersService {
       })
       return profile
     } catch (error) {
-      throw new InternalServerErrorException(MESSAGE.ERROR)
+      throw new InternalServerErrorException(Message.ERROR)
     }
   }
 }

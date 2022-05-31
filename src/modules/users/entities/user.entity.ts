@@ -37,7 +37,7 @@ export class UserEntity {
   @Column({
     default: "",
   })
-  image?: string
+  avatar?: string
 
   @Column({
     default: "",

@@ -1,4 +1,6 @@
-import { Body, Controller, Post } from "@nestjs/common"
+import { Body, Controller, Post, Res } from "@nestjs/common"
+import { Response } from "express"
+import { Key } from "src/configs/constants"
 import { IResponse, successResponse } from "src/helpers/response"
 import { CreateUserDto } from "../users/dto/create-user.dto"
 import { UserEntity } from "../users/entities/user.entity"
@@ -12,9 +14,13 @@ export class AuthController {
   @Post("sign-in")
   async signIn(
     @Body() body: SignInByPasswordDto,
-  ): Promise<IResponse<{ accessToken: string }>> {
+    @Res() res: Response,
+  ): Promise<Response> {
     const accessToken = await this.authService.signIn(body)
-    return successResponse({ accessToken })
+    res.cookie(Key.ACCESS_TOKEN, accessToken, {
+      httpOnly: true,
+    })
+    return res.json(successResponse({ accessToken }))
   }
 
   @Post("sign-up")

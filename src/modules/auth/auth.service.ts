@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common"
 import { JwtService } from "@nestjs/jwt"
 import * as bcrypt from "bcrypt"
-import { MESSAGE } from "src/configs/constants"
+import { Message } from "src/configs/constants"
 import { CreateUserDto } from "../users/dto/create-user.dto"
 import { UserEntity } from "../users/entities/user.entity"
 import { UsersService } from "../users/users.service"
@@ -22,9 +22,9 @@ export class AuthService {
       where: [{ email: data.email }, { phone: data.phone }],
     })
 
-    if (!user) throw new UnauthorizedException(MESSAGE.UNAUTHORIZED)
+    if (!user) throw new UnauthorizedException(Message.UNAUTHORIZED)
     if (!(await bcrypt.compare(data.password, user.password)))
-      throw new UnauthorizedException(MESSAGE.UNAUTHORIZED)
+      throw new UnauthorizedException(Message.UNAUTHORIZED)
 
     const accessToken = this.jwtService.sign({
       id: user.id,

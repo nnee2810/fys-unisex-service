@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
-import { LIMIT_PER_PAGE, MESSAGE } from "src/configs/constants"
+import { LIMIT_PER_PAGE, Message } from "src/configs/constants"
 import { IPaginationData } from "src/helpers/response"
 import { ProductEntity } from "src/modules/products/entities/product.entity"
 import {
@@ -82,7 +82,7 @@ export class ProductsService {
         total,
       }
     } catch (error) {
-      throw new InternalServerErrorException(MESSAGE.ERROR)
+      throw new InternalServerErrorException(Message.ERROR)
     }
   }
 
@@ -95,7 +95,7 @@ export class ProductsService {
       })
       return product
     } catch (error) {
-      throw new InternalServerErrorException(MESSAGE.ERROR)
+      throw new InternalServerErrorException(Message.ERROR)
     }
   }
 
@@ -105,7 +105,7 @@ export class ProductsService {
       await this.productsRepository.insert(product)
       return product
     } catch (error) {
-      throw new InternalServerErrorException(MESSAGE.ERROR)
+      throw new InternalServerErrorException(Message.ERROR)
     }
   }
 }

@@ -1,21 +1,10 @@
-import { ArrayContains, IsOptional, IsString, Matches } from "class-validator"
-import { REGEX } from "src/configs/constants"
+import { IsIn, IsOptional, IsString } from "class-validator"
 import { Gender } from "../entities/user.entity"
 
 export class UpdateUserProfileDto {
   @IsOptional()
   @IsString()
   fullName?: string
-
-  @IsOptional()
-  @IsString()
-  @Matches(REGEX.PHONE)
-  phone?: string
-
-  @IsOptional()
-  @IsString()
-  @Matches(REGEX.EMAIL)
-  email?: string
 
   @IsOptional()
   @IsString()
@@ -35,6 +24,6 @@ export class UpdateUserProfileDto {
 
   @IsOptional()
   @IsString()
-  @ArrayContains(["male", "female"])
+  @IsIn(["male", "female"])
   gender?: Gender
 }
