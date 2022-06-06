@@ -1,4 +1,5 @@
 import * as bcrypt from "bcrypt"
+import { Key } from "src/configs/constants"
 import {
   BeforeInsert,
   BeforeUpdate,
@@ -6,21 +7,25 @@ import {
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from "typeorm"
 
-export enum Role {
-  Customer = "customer",
-  Mod = "mod",
-  Admin = "admin",
+export enum UserRole {
+  CUSTOMER = "CUSTOMER",
+  MOD = "MOD",
+  ADMIN = "ADMIN",
 }
-export enum Gender {
-  Male = "male",
-  Female = "female",
+
+export enum UserGender {
+  MALE = "MALE",
+  FEMALE = "FEMALE",
 }
 
 @Entity("users")
-export class UserEntity {
+@Unique(Key.UNIQUE_USER_EMAIL_CONSTRAINT, ["email"])
+@Unique(Key.UNIQUE_USER_PHONE_CONSTRAINT, ["phone"])
+export class User {
   @PrimaryGeneratedColumn("uuid")
   id: string
 
@@ -30,26 +35,22 @@ export class UserEntity {
   fullName: string
 
   @Column({
-    default: "",
+    type: "enum",
+    enum: UserGender,
+    nullable: true,
   })
-  gender: Gender
+  gender?: UserGender
 
   @Column({
     default: "",
   })
   avatar?: string
 
-  @Column({
-    default: "",
-    unique: true,
-  })
-  phone: string
-
-  @Column({
-    default: "",
-    unique: true,
-  })
+  @Column()
   email: string
+
+  @Column()
+  phone: string
 
   @Column({
     select: false,
@@ -57,31 +58,11 @@ export class UserEntity {
   password: string
 
   @Column({
-    default: "",
-  })
-  address: string
-
-  @Column({
-    default: "",
-  })
-  province: string
-
-  @Column({
-    default: "",
-  })
-  district: string
-
-  @Column({
-    default: "",
-  })
-  ward: string
-
-  @Column({
     type: "enum",
-    enum: Role,
-    default: Role.Customer,
+    enum: UserRole,
+    default: UserRole.CUSTOMER,
   })
-  role: Role
+  role: UserRole
 
   @CreateDateColumn()
   createdAt: string

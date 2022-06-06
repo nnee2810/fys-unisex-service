@@ -1,17 +1,20 @@
-export const LIMIT_PER_PAGE = 20
+export const TAKE_PER_PAGE = 20
 export const Regex = {
-  EMAIL:
-    /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-  PHONE: /^(0)(3|5|7|8|9)+([0-9]{8})$/,
   PASSWORD: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+  AVATAR_FILE_EXTENSION: /\/(jpg|jpeg|png)$/,
 }
 export enum Message {
-  SUCCESS = "Success",
-  ERROR = "Đã có lỗi xảy ra, vui lòng thử lại sau",
-  EMAIL_ALREADY_EXIST = "Email đã được sử dụng",
-  PHONE_ALREADY_EXIST = "Số điện thoại đã được sử dụng",
-  UNAUTHORIZED = "Thông tin đăng nhập không chính xác",
+  EMAIL_ALREADY_EXIST = "EMAIL_ALREADY_EXIST",
+  PHONE_ALREADY_EXIST = "PHONE_ALREADY_EXIST",
+  SIGN_IN_FAIL = "SIGN_IN_FAIL",
+}
+export enum PostgresErrorCode {
+  UNIQUE_VIOLATION = "23505",
+  CHECK_VIOLATION = "23514",
+  NOT_NULL_VIOLATION = "23502",
+  FOREIGN_KEY_VIOLATION = "23503",
 }
 export enum Key {
-  ACCESS_TOKEN = "accessToken",
+  UNIQUE_USER_EMAIL_CONSTRAINT = "UNIQUE_USER_EMAIL_CONSTRAINT",
+  UNIQUE_USER_PHONE_CONSTRAINT = "UNIQUE_USER_PHONE_CONSTRAINT",
 }

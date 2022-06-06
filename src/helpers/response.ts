@@ -5,15 +5,11 @@ export interface IResponse<T> {
   message: string
   data?: T
 }
-export interface IPaginationData<T> {
+export interface IPagination<T> {
   data: T
-  page: number
-  limit: number
   total: number
-}
-export interface QueryError {
-  code: number
-  detail: string
+  page: number
+  take: number
 }
 
 export function successResponse<T>(data: T, message = "Success"): IResponse<T> {

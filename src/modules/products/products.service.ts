@@ -1,111 +1,115 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common"
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
-import { LIMIT_PER_PAGE, Message } from "src/configs/constants"
-import { IPaginationData } from "src/helpers/response"
-import { ProductEntity } from "src/modules/products/entities/product.entity"
+import { IPagination } from "src/helpers/response"
 import {
   ArrayContains,
   Between,
   FindOptionsOrder,
   FindOptionsWhere,
+  ILike,
   LessThanOrEqual,
-  Like,
   MoreThanOrEqual,
   Repository,
 } from "typeorm"
 import { CreateProductDto } from "./dto/create-product-dto"
-import { GetProductsDto } from "./dto/get-products-dto"
+import { GetProductsDto, ProductSort } from "./dto/get-products-dto"
+import { Product } from "./entities/product.entity"
 
 @Injectable()
 export class ProductsService {
   constructor(
-    @InjectRepository(ProductEntity)
-    private readonly productsRepository: Repository<ProductEntity>,
+    @InjectRepository(Product)
+    private readonly productsRepository: Repository<Product>,
   ) {}
+
+  async createProduct(data: CreateProductDto): Promise<Product> {
+    try {
+      const product = this.productsRepository.create(data)
+      await this.productsRepository.insert(product)
+      return product
+    } catch (error) {
+      throw new InternalServerErrorException()
+    }
+  }
 
   async getProducts({
     name,
-    type,
+    classify,
     gender,
     size,
     minPrice,
     maxPrice,
-    forSale,
+    onSale,
+    inSale,
     inStock,
-    isSale,
     isFeatured,
     sort,
-    page = 1,
-    limit = LIMIT_PER_PAGE,
-  }: GetProductsDto): Promise<IPaginationData<ProductEntity[]>> {
+    page,
+    take,
+  }: GetProductsDto): Promise<IPagination<Product[]>> {
     try {
-      let whereOption: FindOptionsWhere<ProductEntity> = {}
-      if (name) whereOption.name = Like("%" + name + "%")
-      if (type) whereOption.type = type
-      if (gender) whereOption.gender = gender
-      if (size) whereOption.sizes = ArrayContains([size])
-      if (minPrice) whereOption.price = MoreThanOrEqual(minPrice)
-      if (maxPrice) whereOption.price = LessThanOrEqual(maxPrice)
-      if (minPrice && maxPrice) whereOption.price = Between(minPrice, maxPrice)
-      if (forSale) whereOption.forSale = forSale
-      if (inStock) whereOption.inStock = inStock
-      if (isSale) whereOption.isSale = isSale
-      if (isFeatured) whereOption.isFeatured = isFeatured
-
-      let orderOption: FindOptionsOrder<ProductEntity> = {}
-      switch (sort) {
-        case "time":
-          orderOption["updatedAt"] = "desc"
-          break
-        case "price-asc":
-          orderOption.price = "asc"
-          break
-        case "price-desc":
-          orderOption.price = "desc"
-          break
-        case "percent": {
-          break
-        }
+      const where: FindOptionsWhere<Product> = {
+        name: name && ILike("%" + name + "%"),
+        classify,
+        gender,
+        sizes: size && ArrayContains([size]),
+        price:
+          minPrice && maxPrice
+            ? Between(minPrice, maxPrice)
+            : minPrice
+            ? MoreThanOrEqual(minPrice)
+            : maxPrice
+            ? LessThanOrEqual(maxPrice)
+            : undefined,
+        onSale,
+        inSale,
+        inStock,
+        isFeatured,
       }
 
-      const [products, total] = await this.productsRepository.findAndCount({
-        where: whereOption,
-        order: orderOption,
-        skip: page * limit,
-        take: limit,
+      const order: FindOptionsOrder<Product> = {
+        price:
+          sort === ProductSort.PRICE_ASC
+            ? "asc"
+            : sort === ProductSort.PRICE_DESC
+            ? "desc"
+            : undefined,
+        updatedAt: sort === ProductSort.TIME ? "desc" : undefined,
+      }
+
+      const [data, total] = await this.productsRepository.findAndCount({
+        where,
+        order,
+        skip: (page - 1) * take,
+        take,
       })
 
       return {
-        data: products,
-        page,
-        limit,
+        data,
         total,
+        page,
+        take,
       }
     } catch (error) {
-      throw new InternalServerErrorException(Message.ERROR)
+      throw new InternalServerErrorException()
     }
   }
 
-  async getProduct(id: string): Promise<ProductEntity> {
+  async getProduct(id: string): Promise<Product> {
     try {
       const product = await this.productsRepository.findOne({
         where: {
           id,
         },
       })
+      if (!product) throw new NotFoundException()
       return product
     } catch (error) {
-      throw new InternalServerErrorException(Message.ERROR)
-    }
-  }
-
-  async createProduct(data: CreateProductDto): Promise<ProductEntity> {
-    try {
-      const product = this.productsRepository.create(data)
-      await this.productsRepository.insert(product)
-      return product
-    } catch (error) {
-      throw new InternalServerErrorException(Message.ERROR)
+      throw new InternalServerErrorException()
     }
   }
 }

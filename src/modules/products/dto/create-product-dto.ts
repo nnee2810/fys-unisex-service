@@ -1,45 +1,55 @@
 import {
+  ArrayContains,
   IsArray,
   IsBoolean,
+  IsIn,
   IsNumber,
-  IsOptional,
   IsString,
+  Min,
 } from "class-validator"
+import {
+  ProductClassify,
+  ProductGender,
+  ProductSize,
+} from "../entities/product.entity"
 
 export class CreateProductDto {
   @IsString()
   name: string
 
-  @IsOptional()
+  @IsString({ each: true })
+  images: string[]
+
+  @IsString()
+  @IsIn(Object.keys(ProductClassify))
+  classify: ProductClassify
+
+  @IsString()
+  @IsIn(Object.keys(ProductGender))
+  gender: ProductGender
+
+  @IsString()
   @IsArray()
-  images?: string[]
-
-  @IsString()
-  type: string
-
-  @IsString()
-  gender: string
+  @ArrayContains(Object.keys(ProductSize))
+  sizes: ProductSize[]
 
   @IsNumber()
+  @Min(0)
   price: number
 
-  @IsOptional()
   @IsNumber()
-  forSale: boolean
+  @Min(0)
+  salePrice: number
 
-  @IsOptional()
-  @IsNumber()
-  salePrice?: number
-
-  @IsOptional()
   @IsBoolean()
-  isSale?: boolean
+  onSale: boolean
 
-  @IsOptional()
   @IsBoolean()
-  inStock?: boolean
+  inSale: boolean
 
-  @IsOptional()
   @IsBoolean()
-  isFeatured?: boolean
+  inStock: boolean
+
+  @IsBoolean()
+  isFeatured: boolean
 }

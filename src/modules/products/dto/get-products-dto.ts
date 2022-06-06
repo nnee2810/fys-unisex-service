@@ -1,19 +1,34 @@
 import { Type } from "class-transformer"
-import { IsBoolean, IsNumber, IsOptional } from "class-validator"
+import { IsBoolean, IsIn, IsNumber, IsOptional } from "class-validator"
 import { PaginationDto } from "src/dto/pagination-dto"
+import {
+  ProductClassify,
+  ProductGender,
+  ProductSize,
+} from "../entities/product.entity"
+
+export enum ProductSort {
+  TIME = "TIME",
+  PRICE_ASC = "PRICE_ASC",
+  PRICE_DESC = "PRICE_DESC",
+  PERCENT = "PERCENT",
+}
 
 export class GetProductsDto extends PaginationDto {
   @IsOptional()
   name?: string
 
   @IsOptional()
-  type?: string
+  @IsIn(Object.keys(ProductClassify))
+  classify?: ProductClassify
 
   @IsOptional()
-  gender?: string
+  @IsIn(Object.keys(ProductGender))
+  gender?: ProductGender
 
   @IsOptional()
-  size?: string
+  @IsIn(Object.keys(ProductSize))
+  size?: ProductSize
 
   @IsOptional()
   @IsNumber()
@@ -26,9 +41,14 @@ export class GetProductsDto extends PaginationDto {
   maxPrice?: number
 
   @IsOptional()
-  @IsNumber()
+  @IsBoolean()
   @Type(() => Boolean)
-  forSale?: boolean
+  onSale?: boolean
+
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  inSale?: boolean
 
   @IsOptional()
   @IsBoolean()
@@ -38,13 +58,9 @@ export class GetProductsDto extends PaginationDto {
   @IsOptional()
   @IsBoolean()
   @Type(() => Boolean)
-  isSale?: boolean
-
-  @IsOptional()
-  @IsBoolean()
-  @Type(() => Boolean)
   isFeatured?: boolean
 
   @IsOptional()
-  sort?: "time" | "price-asc" | "price-desc" | "percent"
+  @IsIn(Object.keys(ProductSort))
+  sort?: ProductSort
 }
