@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
@@ -16,7 +15,7 @@ import { avatarFileFilter } from "src/helpers/fileFilter"
 import { IResponse, successResponse } from "src/helpers/response"
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard"
 import { UpdateUserProfileDto } from "./dto/update-user-profile.dto"
-import { User } from "./entities/user.entity"
+import { UserEntity } from "./entities/user.entity"
 import { UsersService } from "./users.service"
 
 @UseGuards(JwtAuthGuard)
@@ -25,7 +24,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get("profile")
-  async getUserProfile(@Request() req): Promise<IResponse<User>> {
+  async getUserProfile(@Request() req): Promise<IResponse<UserEntity>> {
     return successResponse(req.user)
   }
 
@@ -33,11 +32,9 @@ export class UsersController {
   async getUserProfileById(
     @Request() req,
     @Param("id") id: string,
-  ): Promise<IResponse<User>> {
+  ): Promise<IResponse<UserEntity>> {
     if (req.user.id === id) return successResponse(req.user)
-    const user = await this.usersService.getUser({
-      where: { id },
-    })
+    const user = await this.usersService.getUserById(id)
     if (!user) throw new NotFoundException()
     return successResponse(user)
   }
@@ -55,14 +52,14 @@ export class UsersController {
   async updateUserProfileById(
     @Param("id") id: string,
     @Body() body: UpdateUserProfileDto,
-  ): Promise<IResponse<string>> {
-    await this.usersService.updateUserProfile(id, body)
-    return successResponse(id)
+  ): Promise<IResponse<UserEntity>> {
+    const user = await this.usersService.updateUserProfile(id, body)
+    return successResponse(user)
   }
 
   @Patch("avatar")
   @UseInterceptors(
-    FileInterceptor("avatar", {
+    FileInterceptor("file", {
       fileFilter: avatarFileFilter,
       limits: {
         files: 1,
@@ -74,8 +71,7 @@ export class UsersController {
     @Request() req,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<IResponse<string>> {
-    if (!file) throw new BadRequestException()
-    const avatar = await this.usersService.updateUserAvatar(req.user.id, file)
-    return successResponse(avatar)
+    const src = await this.usersService.updateUserAvatar(req.user.id, file)
+    return successResponse(src)
   }
 }

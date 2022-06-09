@@ -2,18 +2,20 @@ import { Injectable, InternalServerErrorException } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
 import { Key, Message } from "src/configs/constants"
 import { FindOptionsSelect, FindOptionsWhere, Repository } from "typeorm"
+import { UploadService } from "../upload/upload.service"
 import { CreateUserDto } from "./dto/create-user.dto"
 import { UpdateUserProfileDto } from "./dto/update-user-profile.dto"
-import { User } from "./entities/user.entity"
+import { UserEntity } from "./entities/user.entity"
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(User)
-    private readonly usersRepository: Repository<User>,
+    @InjectRepository(UserEntity)
+    private readonly usersRepository: Repository<UserEntity>,
+    private readonly uploadService: UploadService,
   ) {}
 
-  async createUser(data: CreateUserDto): Promise<User> {
+  async createUser(data: CreateUserDto): Promise<UserEntity> {
     try {
       const user = this.usersRepository.create(data)
       await this.usersRepository.insert(user)
@@ -35,28 +37,48 @@ export class UsersService {
     }
   }
 
-  async getUser(params: {
-    select?: FindOptionsSelect<User>
-    where: FindOptionsWhere<User>
-  }): Promise<User> {
+  async getUser({
+    select,
+    where,
+  }: {
+    select?: FindOptionsSelect<UserEntity>
+    where: FindOptionsWhere<UserEntity>
+  }): Promise<UserEntity> {
     try {
-      const user = await this.usersRepository.findOne(params)
+      const user = await this.usersRepository.findOne({
+        select: {
+          avatar: {
+            src: true,
+          },
+          ...select,
+        },
+        where,
+        relations: ["avatar"],
+      })
       return user
     } catch (error) {
       throw new InternalServerErrorException()
     }
   }
 
+  getUserById(id: string, select?: FindOptionsSelect<UserEntity>) {
+    return this.getUser({
+      select,
+      where: {
+        id,
+      },
+    })
+  }
+
   async updateUserProfile(
     id: string,
     data: UpdateUserProfileDto,
-  ): Promise<void> {
+  ): Promise<UserEntity> {
     try {
-      const result = await this.usersRepository.update({ id }, data)
-      console.log(result)
+      await this.usersRepository.update(id, data)
+      const user = this.getUserById(id)
+      return user
     } catch (error) {
-      console.log(error)
-
       throw new InternalServerErrorException()
     }
   }
@@ -65,6 +87,20 @@ export class UsersService {
     id: string,
     file: Express.Multer.File,
   ): Promise<string> {
-    return ""
+    try {
+      const user = await this.getUserById(id, {
+        avatar: {
+          id: true,
+        },
+      })
+      if (user.avatar.id) await this.uploadService.deleteFile(user.avatar.id)
+      const fileUpload = await this.uploadService.uploadFile(file)
+      await this.usersRepository.update(id, {
+        avatar: fileUpload,
+      })
+      return fileUpload.src
+    } catch (error) {
+      throw new InternalServerErrorException()
+    }
   }
 }

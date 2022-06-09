@@ -17,16 +17,16 @@ import {
 } from "typeorm"
 import { CreateProductDto } from "./dto/create-product-dto"
 import { GetProductsDto, ProductSort } from "./dto/get-products-dto"
-import { Product } from "./entities/product.entity"
+import { ProductEntity } from "./entities/product.entity"
 
 @Injectable()
 export class ProductsService {
   constructor(
-    @InjectRepository(Product)
-    private readonly productsRepository: Repository<Product>,
+    @InjectRepository(ProductEntity)
+    private readonly productsRepository: Repository<ProductEntity>,
   ) {}
 
-  async createProduct(data: CreateProductDto): Promise<Product> {
+  async createProduct(data: CreateProductDto): Promise<ProductEntity> {
     try {
       const product = this.productsRepository.create(data)
       await this.productsRepository.insert(product)
@@ -50,9 +50,9 @@ export class ProductsService {
     sort,
     page,
     take,
-  }: GetProductsDto): Promise<IPagination<Product[]>> {
+  }: GetProductsDto): Promise<IPagination<ProductEntity[]>> {
     try {
-      const where: FindOptionsWhere<Product> = {
+      const where: FindOptionsWhere<ProductEntity> = {
         name: name && ILike("%" + name + "%"),
         classify,
         gender,
@@ -71,7 +71,7 @@ export class ProductsService {
         isFeatured,
       }
 
-      const order: FindOptionsOrder<Product> = {
+      const order: FindOptionsOrder<ProductEntity> = {
         price:
           sort === ProductSort.PRICE_ASC
             ? "asc"
@@ -99,7 +99,7 @@ export class ProductsService {
     }
   }
 
-  async getProduct(id: string): Promise<Product> {
+  async getProduct(id: string): Promise<ProductEntity> {
     try {
       const product = await this.productsRepository.findOne({
         where: {

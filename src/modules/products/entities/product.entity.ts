@@ -1,10 +1,6 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from "typeorm"
+import { BaseEntity } from "src/entities/base.entity"
+import { deleteWhiteSpace } from "src/utils/deleteWhiteSpace"
+import { BeforeInsert, BeforeUpdate, Column, Entity } from "typeorm"
 
 export enum ProductClassify {
   SHIRT = "SHIRT",
@@ -29,10 +25,7 @@ export enum ProductSize {
 }
 
 @Entity("products")
-export class Product {
-  @PrimaryGeneratedColumn("uuid")
-  id: string
-
+export class ProductEntity extends BaseEntity {
   @Column()
   name: string
 
@@ -98,9 +91,11 @@ export class Product {
   })
   isFeatured: boolean
 
-  @CreateDateColumn()
-  createdAt: string
-
-  @UpdateDateColumn()
-  updatedAt: string
+  @BeforeInsert()
+  @BeforeUpdate()
+  async transformValues() {
+    if (this.name) {
+      this.name = deleteWhiteSpace(this.name)
+    }
+  }
 }

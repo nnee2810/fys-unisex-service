@@ -19,6 +19,7 @@ export class AuthService {
   }: SignInByPasswordDto): Promise<string> {
     const user = await this.usersService.getUser({
       select: {
+        id: true,
         password: true,
       },
       where: {
@@ -26,6 +27,7 @@ export class AuthService {
         phone,
       },
     })
+
     if (!user) throw new UnauthorizedException(Message.SIGN_IN_FAIL)
     if (!(await bcrypt.compare(password, user.password)))
       throw new UnauthorizedException(Message.SIGN_IN_FAIL)
