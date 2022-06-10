@@ -23,7 +23,7 @@ import { ProductEntity } from "./entities/product.entity"
 export class ProductsService {
   constructor(
     @InjectRepository(ProductEntity)
-    private readonly productsRepository: Repository<ProductEntity>,
+    private productsRepository: Repository<ProductEntity>,
   ) {}
 
   async createProduct(data: CreateProductDto): Promise<ProductEntity> {

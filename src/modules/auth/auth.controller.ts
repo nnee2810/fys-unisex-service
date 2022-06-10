@@ -9,8 +9,8 @@ import { SignInByPasswordDto } from "./dto/sign-in-by-password.dto"
 @Controller("auth")
 export class AuthController {
   constructor(
-    private readonly authService: AuthService,
-    private readonly usersService: UsersService,
+    private authService: AuthService,
+    private usersService: UsersService,
   ) {}
 
   @Post("sign-in")

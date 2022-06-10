@@ -11,8 +11,8 @@ import { UserEntity } from "./entities/user.entity"
 export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
-    private readonly usersRepository: Repository<UserEntity>,
-    private readonly uploadService: UploadService,
+    private usersRepository: Repository<UserEntity>,
+    private uploadService: UploadService,
   ) {}
 
   async createUser(data: CreateUserDto): Promise<UserEntity> {

@@ -1,6 +1,6 @@
 import { BaseEntity } from "src/entities/base.entity"
 import { deleteWhiteSpace } from "src/utils/deleteWhiteSpace"
-import { BeforeInsert, BeforeUpdate, Column, Entity } from "typeorm"
+import { AfterLoad, BeforeInsert, BeforeUpdate, Column, Entity } from "typeorm"
 
 export enum ProductClassify {
   SHIRT = "SHIRT",
@@ -97,5 +97,17 @@ export class ProductEntity extends BaseEntity {
     if (this.name) {
       this.name = deleteWhiteSpace(this.name)
     }
+
+    if (this.price && this.salePrice) {
+      this.salePercent = 100 - Math.round(this.salePrice / this.price)
+    }
+  }
+
+  protected salePercent: number
+  @AfterLoad()
+  getSalePercent() {
+    if (this.price && this.salePrice) {
+      this.salePercent = Math.round(100 - (this.salePrice / this.price) * 100)
+    } else this.salePercent = 0
   }
 }

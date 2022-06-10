@@ -10,7 +10,7 @@ import { FileUploadEntity } from "./entities/file-upload.entity"
 export class UploadService {
   constructor(
     @InjectRepository(FileUploadEntity)
-    private readonly uploadRepository: Repository<FileUploadEntity>,
+    private uploadRepository: Repository<FileUploadEntity>,
   ) {}
 
   async uploadFile(file: Express.Multer.File): Promise<FileUploadEntity> {
