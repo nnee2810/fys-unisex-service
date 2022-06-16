@@ -1,7 +1,7 @@
 import { IsOptional, IsString } from "class-validator"
-import { UserGender } from "../entities/user.entity"
+import { UserGender } from "src/entities"
 
-export class UpdateUserProfileDto {
+export class UpdateProfileDto {
   @IsOptional()
   @IsString()
   fullName?: string

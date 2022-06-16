@@ -1,6 +1,6 @@
-import { BaseEntity } from "src/entities/base.entity"
-import { deleteWhiteSpace } from "src/utils/deleteWhiteSpace"
+import { deleteWhiteSpace } from "src/utils"
 import { AfterLoad, BeforeInsert, BeforeUpdate, Column, Entity } from "typeorm"
+import { BaseEntity } from "."
 
 export enum ProductClassify {
   SHIRT = "SHIRT",
@@ -69,27 +69,27 @@ export class ProductEntity extends BaseEntity {
   @Column({
     default: 0,
   })
-  salePrice: number
+  sale_price: number
 
   @Column({
     default: false,
   })
-  onSale: boolean
+  on_sale: boolean
 
   @Column({
     default: false,
   })
-  inSale: boolean
+  in_sale: boolean
 
   @Column({
     default: false,
   })
-  inStock: boolean
+  in_stock: boolean
 
   @Column({
     default: false,
   })
-  isFeatured: boolean
+  is_featured: boolean
 
   @BeforeInsert()
   @BeforeUpdate()
@@ -98,16 +98,16 @@ export class ProductEntity extends BaseEntity {
       this.name = deleteWhiteSpace(this.name)
     }
 
-    if (this.price && this.salePrice) {
-      this.salePercent = 100 - Math.round(this.salePrice / this.price)
+    if (this.price && this.sale_price) {
+      this.sale_percent = 100 - Math.round(this.sale_price / this.price)
     }
   }
 
-  protected salePercent: number
+  protected sale_percent: number
   @AfterLoad()
-  getSalePercent() {
-    if (this.price && this.salePrice) {
-      this.salePercent = Math.round(100 - (this.salePrice / this.price) * 100)
-    } else this.salePercent = 0
+  getsale_percent() {
+    if (this.price && this.sale_price) {
+      this.sale_percent = Math.round(100 - (this.sale_price / this.price) * 100)
+    } else this.sale_percent = 0
   }
 }

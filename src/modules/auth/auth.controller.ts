@@ -1,10 +1,10 @@
 import { Body, Controller, Post } from "@nestjs/common"
-import { IResponse, successResponse } from "src/helpers/response"
-import { CreateUserDto } from "../users/dto/create-user.dto"
-import { UserEntity } from "../users/entities/user.entity"
+import { IResponse, successResponse } from "src/helpers"
+import { UserEntity } from "../../entities"
+import { CreateUserDto } from "../users/dto"
 import { UsersService } from "../users/users.service"
 import { AuthService } from "./auth.service"
-import { SignInByPasswordDto } from "./dto/sign-in-by-password.dto"
+import { SignInByPasswordDto } from "./dto"
 
 @Controller("auth")
 export class AuthController {

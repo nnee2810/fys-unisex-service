@@ -1,17 +1,17 @@
 import * as bcrypt from "bcrypt"
 import { Key } from "src/configs/constants"
-import { BaseEntity } from "src/entities/base.entity"
-import { FileUploadEntity } from "src/modules/upload/entities/file-upload.entity"
-import { deleteWhiteSpace } from "src/utils/deleteWhiteSpace"
+import { deleteWhiteSpace } from "src/utils"
 import {
   BeforeInsert,
   BeforeUpdate,
   Column,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   Unique,
 } from "typeorm"
+import { AddressEntity, BaseEntity, FileUploadEntity } from "."
 
 export enum UserRole {
   CUSTOMER = "CUSTOMER",
@@ -28,10 +28,8 @@ export enum UserGender {
 @Unique(Key.UNIQUE_USER_EMAIL_CONSTRAINT, ["email"])
 @Unique(Key.UNIQUE_USER_PHONE_CONSTRAINT, ["phone"])
 export class UserEntity extends BaseEntity {
-  @Column({
-    default: "",
-  })
-  fullName: string
+  @Column()
+  name: string
 
   @Column({
     type: "enum",
@@ -61,15 +59,21 @@ export class UserEntity extends BaseEntity {
   @OneToOne(() => FileUploadEntity, {
     nullable: true,
     onDelete: "SET NULL",
+    eager: true,
   })
-  @JoinColumn()
+  @JoinColumn({ name: "avatar_id" })
   avatar?: FileUploadEntity
+
+  @OneToMany(() => AddressEntity, (address) => address.user, {
+    nullable: true,
+  })
+  address_list?: AddressEntity[]
 
   @BeforeInsert()
   @BeforeUpdate()
   async transformValues() {
-    if (this.fullName) {
-      this.fullName = deleteWhiteSpace(this.fullName)
+    if (this.name) {
+      this.name = deleteWhiteSpace(this.name)
     }
     if (this.password) {
       this.password = await bcrypt.hash(this.password, 10)

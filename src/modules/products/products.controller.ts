@@ -1,8 +1,7 @@
 import { Body, Controller, Get, Param, Post, Query } from "@nestjs/common"
-import { IPagination, IResponse, successResponse } from "src/helpers/response"
-import { CreateProductDto } from "./dto/create-product-dto"
-import { GetProductsDto } from "./dto/get-products-dto"
-import { ProductEntity } from "./entities/product.entity"
+import { ProductEntity } from "src/entities"
+import { IPagination, IResponse, successResponse } from "src/helpers"
+import { CreateProductDto, GetProductsDto } from "./dto"
 import { ProductsService } from "./products.service"
 
 @Controller("products")

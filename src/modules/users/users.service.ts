@@ -1,11 +1,15 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
 import { Key, Message } from "src/configs/constants"
-import { FindOptionsSelect, FindOptionsWhere, Repository } from "typeorm"
+import { UserEntity } from "src/entities"
+import {
+  FindOptionsRelations,
+  FindOptionsSelect,
+  FindOptionsWhere,
+  Repository,
+} from "typeorm"
 import { UploadService } from "../upload/upload.service"
-import { CreateUserDto } from "./dto/create-user.dto"
-import { UpdateUserProfileDto } from "./dto/update-user-profile.dto"
-import { UserEntity } from "./entities/user.entity"
+import { CreateUserDto, UpdateProfileDto } from "./dto"
 
 @Injectable()
 export class UsersService {
@@ -23,7 +27,6 @@ export class UsersService {
       return user
     } catch (error) {
       let message = ""
-
       switch (error?.constraint) {
         case Key.UNIQUE_USER_EMAIL_CONSTRAINT:
           message = Message.EMAIL_ALREADY_EXIST
@@ -40,20 +43,17 @@ export class UsersService {
   async getUser({
     select,
     where,
+    relations,
   }: {
     select?: FindOptionsSelect<UserEntity>
     where: FindOptionsWhere<UserEntity>
+    relations?: FindOptionsRelations<UserEntity>
   }): Promise<UserEntity> {
     try {
       const user = await this.usersRepository.findOne({
-        select: {
-          avatar: {
-            src: true,
-          },
-          ...select,
-        },
+        select,
         where,
-        relations: ["avatar"],
+        relations: relations,
       })
       return user
     } catch (error) {
@@ -61,19 +61,23 @@ export class UsersService {
     }
   }
 
-  getUserById(id: string, select?: FindOptionsSelect<UserEntity>) {
+  getUserById(
+    id: string,
+    options?: {
+      select?: FindOptionsSelect<UserEntity>
+
+      relations?: FindOptionsRelations<UserEntity>
+    },
+  ) {
     return this.getUser({
-      select,
       where: {
         id,
       },
+      ...options,
     })
   }
 
-  async updateUserProfile(
-    id: string,
-    data: UpdateUserProfileDto,
-  ): Promise<UserEntity> {
+  async updateProfile(id: string, data: UpdateProfileDto): Promise<UserEntity> {
     try {
       await this.usersRepository.update(id, data)
       const user = this.getUserById(id)
@@ -83,17 +87,10 @@ export class UsersService {
     }
   }
 
-  async updateUserAvatar(
-    id: string,
-    file: Express.Multer.File,
-  ): Promise<string> {
+  async updateAvatar(id: string, file: Express.Multer.File): Promise<string> {
     try {
-      const user = await this.getUserById(id, {
-        avatar: {
-          id: true,
-        },
-      })
-      if (user.avatar.id) await this.uploadService.deleteFile(user.avatar.id)
+      const user = await this.getUserById(id)
+      if (user?.avatar?.id) await this.uploadService.deleteFile(user.avatar.id)
       const fileUpload = await this.uploadService.uploadFile(file)
       await this.usersRepository.update(id, {
         avatar: fileUpload,

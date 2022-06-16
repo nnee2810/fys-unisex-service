@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
 import { S3 } from "aws-sdk"
-import { getAwsCloudFrontUrl } from "src/utils/getAwsCloudFrontUrl"
+import { FileUploadEntity } from "src/entities"
+import { getAwsCloudFrontUrl } from "src/utils"
 import { Repository } from "typeorm"
 import { v4 } from "uuid"
-import { FileUploadEntity } from "./entities/file-upload.entity"
 
 @Injectable()
 export class UploadService {

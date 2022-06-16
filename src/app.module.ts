@@ -3,6 +3,7 @@ import { TypeOrmModule } from "@nestjs/typeorm"
 import { AbilityModule } from "./ability/ability.module"
 import { AppController } from "./app.controller"
 import { AppService } from "./app.service"
+import { AddressModule } from "./modules/address/address.module"
 import { AuthModule } from "./modules/auth/auth.module"
 import { ProductsModule } from "./modules/products/products.module"
 import { UploadModule } from "./modules/upload/upload.module"
@@ -24,6 +25,7 @@ import { UsersModule } from "./modules/users/users.module"
     ProductsModule,
     UsersModule,
     UploadModule,
+    AddressModule,
     AbilityModule,
   ],
   controllers: [AppController],

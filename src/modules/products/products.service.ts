@@ -4,7 +4,8 @@ import {
   NotFoundException,
 } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
-import { IPagination } from "src/helpers/response"
+import { ProductEntity } from "src/entities"
+import { IPagination } from "src/helpers"
 import {
   ArrayContains,
   Between,
@@ -15,9 +16,7 @@ import {
   MoreThanOrEqual,
   Repository,
 } from "typeorm"
-import { CreateProductDto } from "./dto/create-product-dto"
-import { GetProductsDto, ProductSort } from "./dto/get-products-dto"
-import { ProductEntity } from "./entities/product.entity"
+import { CreateProductDto, GetProductsDto, ProductSort } from "./dto"
 
 @Injectable()
 export class ProductsService {
@@ -41,12 +40,12 @@ export class ProductsService {
     classify,
     gender,
     size,
-    minPrice,
-    maxPrice,
-    onSale,
-    inSale,
-    inStock,
-    isFeatured,
+    min_price,
+    max_price,
+    on_sale,
+    in_sale,
+    in_stock,
+    is_featured,
     sort,
     page,
     take,
@@ -58,17 +57,17 @@ export class ProductsService {
         gender,
         sizes: size && ArrayContains([size]),
         price:
-          minPrice && maxPrice
-            ? Between(minPrice, maxPrice)
-            : minPrice
-            ? MoreThanOrEqual(minPrice)
-            : maxPrice
-            ? LessThanOrEqual(maxPrice)
+          min_price && max_price
+            ? Between(min_price, max_price)
+            : min_price
+            ? MoreThanOrEqual(min_price)
+            : max_price
+            ? LessThanOrEqual(max_price)
             : undefined,
-        onSale,
-        inSale,
-        inStock,
-        isFeatured,
+        on_sale,
+        in_sale,
+        in_stock,
+        is_featured,
       }
 
       const order: FindOptionsOrder<ProductEntity> = {
@@ -78,7 +77,7 @@ export class ProductsService {
             : sort === ProductSort.PRICE_DESC
             ? "desc"
             : undefined,
-        updatedAt: sort === ProductSort.TIME ? "desc" : undefined,
+        updated_at: sort === ProductSort.TIME ? "desc" : undefined,
       }
 
       const [data, total] = await this.productsRepository.findAndCount({

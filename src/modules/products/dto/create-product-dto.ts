@@ -7,11 +7,7 @@ import {
   IsString,
   Min,
 } from "class-validator"
-import {
-  ProductClassify,
-  ProductGender,
-  ProductSize,
-} from "../entities/product.entity"
+import { ProductClassify, ProductGender, ProductSize } from "src/entities"
 
 export class CreateProductDto {
   @IsString()
@@ -39,17 +35,17 @@ export class CreateProductDto {
 
   @IsNumber()
   @Min(0)
-  salePrice: number
+  sale_price: number
 
   @IsBoolean()
-  onSale: boolean
+  on_sale: boolean
 
   @IsBoolean()
-  inSale: boolean
+  in_sale: boolean
 
   @IsBoolean()
-  inStock: boolean
+  in_stock: boolean
 
   @IsBoolean()
-  isFeatured: boolean
+  is_featured: boolean
 }

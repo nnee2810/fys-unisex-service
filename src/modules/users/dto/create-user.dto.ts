@@ -3,7 +3,7 @@ import { Regex } from "src/configs/constants"
 
 export class CreateUserDto {
   @IsString()
-  fullName: string
+  name: string
 
   @IsString()
   @IsPhoneNumber("VN")

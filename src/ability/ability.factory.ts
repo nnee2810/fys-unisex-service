@@ -1,7 +1,6 @@
 import { Ability, InferSubjects } from "@casl/ability"
 import { Injectable } from "@nestjs/common"
-import { ProductEntity } from "src/modules/products/entities/product.entity"
-import { UserEntity } from "src/modules/users/entities/user.entity"
+import { ProductEntity, UserEntity } from "src/entities"
 
 export enum Action {
   Manage = "manage",

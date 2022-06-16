@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common"
 import { TypeOrmModule } from "@nestjs/typeorm"
-import { FileUploadEntity } from "./entities/file-upload.entity"
+import { FileUploadEntity } from "src/entities"
 import { UploadService } from "./upload.service"
 
 @Module({
