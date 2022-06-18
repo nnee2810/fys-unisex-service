@@ -57,9 +57,9 @@ export class UserEntity extends BaseEntity {
   role: UserRole
 
   @OneToOne(() => FileUploadEntity, {
+    eager: true,
     nullable: true,
     onDelete: "SET NULL",
-    eager: true,
   })
   @JoinColumn({ name: "avatar_id" })
   avatar?: FileUploadEntity
@@ -67,7 +67,7 @@ export class UserEntity extends BaseEntity {
   @OneToMany(() => AddressEntity, (address) => address.user, {
     nullable: true,
   })
-  address_list?: AddressEntity[]
+  address?: AddressEntity[]
 
   @BeforeInsert()
   @BeforeUpdate()

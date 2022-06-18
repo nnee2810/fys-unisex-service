@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
 import { S3 } from "aws-sdk"
-import { FileUploadEntity } from "src/entities"
+import { FileUploadEntity, UserEntity } from "src/entities"
 import { getAwsCloudFrontUrl } from "src/utils"
 import { Repository } from "typeorm"
 import { v4 } from "uuid"
@@ -13,7 +13,12 @@ export class UploadService {
     private uploadRepository: Repository<FileUploadEntity>,
   ) {}
 
-  async uploadFile(file: Express.Multer.File): Promise<FileUploadEntity> {
+  async uploadFile(
+    file: Express.Multer.File,
+    relations?: {
+      user?: UserEntity
+    },
+  ): Promise<FileUploadEntity> {
     const s3 = new S3()
     const uploadResult = await s3
       .upload({
@@ -25,6 +30,7 @@ export class UploadService {
     const fileUpload = this.uploadRepository.create({
       src: getAwsCloudFrontUrl(uploadResult.Key),
       key: uploadResult.Key,
+      ...relations,
     })
     await this.uploadRepository.insert(fileUpload)
     return fileUpload

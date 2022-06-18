@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post, Req, UseGuards } from "@nestjs/common"
 import { AddressEntity } from "src/entities"
 import { IResponse, successResponse } from "src/helpers"
 import { JwtAuthGuard } from "../auth/jwt-auth.guard"
-import { CreateAddressDto } from "../users/dto"
+import { CreateAddressDto } from "../user/dto"
 import { AddressService } from "./address.service"
 
 @UseGuards(JwtAuthGuard)

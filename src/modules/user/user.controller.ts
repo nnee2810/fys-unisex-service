@@ -15,31 +15,31 @@ import { avatarFileFilter, IResponse, successResponse } from "src/helpers"
 import { AddressService } from "../address/address.service"
 import { JwtAuthGuard } from "../auth/jwt-auth.guard"
 import { CreateAddressDto, UpdateProfileDto } from "./dto"
-import { UsersService } from "./users.service"
+import { UserService } from "./user.service"
 
 @UseGuards(JwtAuthGuard)
-@Controller("users")
-export class UsersController {
+@Controller("user")
+export class UserController {
   constructor(
-    private usersService: UsersService,
+    private userService: UserService,
     private addressService: AddressService,
   ) {}
 
-  @Get("profile")
+  @Get("get-profile")
   async getProfile(@Request() req): Promise<IResponse<UserEntity>> {
     return successResponse(req.user)
   }
 
-  @Patch("profile")
+  @Patch("update-profile")
   async updateProfile(
     @Request() req,
     @Body() body: UpdateProfileDto,
   ): Promise<IResponse<UserEntity>> {
-    const user = await this.usersService.updateProfile(req.user.id, body)
+    const user = await this.userService.updateProfile(req.user.id, body)
     return successResponse(user)
   }
 
-  @Patch("avatar")
+  @Patch("update-avatar")
   @UseInterceptors(
     FileInterceptor("file", {
       fileFilter: avatarFileFilter,
@@ -53,11 +53,11 @@ export class UsersController {
     @Request() req,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<IResponse<string>> {
-    const src = await this.usersService.updateAvatar(req.user.id, file)
+    const src = await this.userService.updateAvatar(req.user.id, file)
     return successResponse(src)
   }
 
-  @Post("address")
+  @Post("create-address")
   async createAddress(
     @Request() req,
     @Body() body: CreateAddressDto,
@@ -66,15 +66,15 @@ export class UsersController {
     return successResponse(address)
   }
 
-  @Get("address-list")
+  @Get("get-address-list")
   async getAddressList(@Request() req): Promise<IResponse<AddressEntity[]>> {
-    const addressList = (
-      await this.usersService.getUserById(req.user.id, {
+    const address = (
+      await this.userService.getUserById(req.user.id, {
         relations: {
-          address_list: true,
+          address: true,
         },
       })
-    ).address_list
-    return successResponse(addressList)
+    ).address
+    return successResponse(address)
   }
 }

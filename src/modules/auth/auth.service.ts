@@ -2,13 +2,13 @@ import { Injectable, UnauthorizedException } from "@nestjs/common"
 import { JwtService } from "@nestjs/jwt"
 import * as bcrypt from "bcrypt"
 import { Message } from "src/configs/constants"
-import { UsersService } from "../users/users.service"
+import { UserService } from "../user/user.service"
 import { SignInByPasswordDto } from "./dto"
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
+    private userService: UserService,
     private jwtService: JwtService,
   ) {}
 
@@ -17,7 +17,7 @@ export class AuthService {
     phone,
     password,
   }: SignInByPasswordDto): Promise<string> {
-    const user = await this.usersService.getUser({
+    const user = await this.userService.getUser({
       select: {
         id: true,
         password: true,

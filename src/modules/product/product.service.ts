@@ -16,26 +16,26 @@ import {
   MoreThanOrEqual,
   Repository,
 } from "typeorm"
-import { CreateProductDto, GetProductsDto, ProductSort } from "./dto"
+import { CreateProductDto, GetProductListDto, ProductSort } from "./dto"
 
 @Injectable()
-export class ProductsService {
+export class ProductService {
   constructor(
     @InjectRepository(ProductEntity)
-    private productsRepository: Repository<ProductEntity>,
+    private productRepository: Repository<ProductEntity>,
   ) {}
 
   async createProduct(data: CreateProductDto): Promise<ProductEntity> {
     try {
-      const product = this.productsRepository.create(data)
-      await this.productsRepository.insert(product)
+      const product = this.productRepository.create(data)
+      await this.productRepository.insert(product)
       return product
     } catch (error) {
       throw new InternalServerErrorException()
     }
   }
 
-  async getProducts({
+  async getProductList({
     name,
     classify,
     gender,
@@ -49,7 +49,7 @@ export class ProductsService {
     sort,
     page,
     take,
-  }: GetProductsDto): Promise<IPagination<ProductEntity[]>> {
+  }: GetProductListDto): Promise<IPagination<ProductEntity[]>> {
     try {
       const where: FindOptionsWhere<ProductEntity> = {
         name: name && ILike("%" + name + "%"),
@@ -80,7 +80,7 @@ export class ProductsService {
         updated_at: sort === ProductSort.TIME ? "desc" : undefined,
       }
 
-      const [data, total] = await this.productsRepository.findAndCount({
+      const [data, total] = await this.productRepository.findAndCount({
         where,
         order,
         skip: (page - 1) * take,
@@ -98,9 +98,9 @@ export class ProductsService {
     }
   }
 
-  async getProduct(id: string): Promise<ProductEntity> {
+  async getProductById(id: string): Promise<ProductEntity> {
     try {
-      const product = await this.productsRepository.findOne({
+      const product = await this.productRepository.findOne({
         where: {
           id,
         },

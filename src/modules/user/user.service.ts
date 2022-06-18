@@ -12,18 +12,17 @@ import { UploadService } from "../upload/upload.service"
 import { CreateUserDto, UpdateProfileDto } from "./dto"
 
 @Injectable()
-export class UsersService {
+export class UserService {
   constructor(
     @InjectRepository(UserEntity)
-    private usersRepository: Repository<UserEntity>,
+    private userRepository: Repository<UserEntity>,
     private uploadService: UploadService,
   ) {}
 
   async createUser(data: CreateUserDto): Promise<UserEntity> {
     try {
-      const user = this.usersRepository.create(data)
-      await this.usersRepository.insert(user)
-
+      const user = this.userRepository.create(data)
+      await this.userRepository.insert(user)
       return user
     } catch (error) {
       let message = ""
@@ -50,7 +49,7 @@ export class UsersService {
     relations?: FindOptionsRelations<UserEntity>
   }): Promise<UserEntity> {
     try {
-      const user = await this.usersRepository.findOne({
+      const user = await this.userRepository.findOne({
         select,
         where,
         relations: relations,
@@ -65,7 +64,6 @@ export class UsersService {
     id: string,
     options?: {
       select?: FindOptionsSelect<UserEntity>
-
       relations?: FindOptionsRelations<UserEntity>
     },
   ) {
@@ -79,8 +77,8 @@ export class UsersService {
 
   async updateProfile(id: string, data: UpdateProfileDto): Promise<UserEntity> {
     try {
-      await this.usersRepository.update(id, data)
-      const user = this.getUserById(id)
+      await this.userRepository.update(id, data)
+      const user = await this.getUserById(id)
       return user
     } catch (error) {
       throw new InternalServerErrorException()
@@ -91,8 +89,10 @@ export class UsersService {
     try {
       const user = await this.getUserById(id)
       if (user?.avatar?.id) await this.uploadService.deleteFile(user.avatar.id)
-      const fileUpload = await this.uploadService.uploadFile(file)
-      await this.usersRepository.update(id, {
+      const fileUpload = await this.uploadService.uploadFile(file, {
+        user,
+      })
+      await this.userRepository.update(id, {
         avatar: fileUpload,
       })
       return fileUpload.src

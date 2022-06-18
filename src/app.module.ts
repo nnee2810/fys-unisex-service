@@ -5,9 +5,9 @@ import { AppController } from "./app.controller"
 import { AppService } from "./app.service"
 import { AddressModule } from "./modules/address/address.module"
 import { AuthModule } from "./modules/auth/auth.module"
-import { ProductsModule } from "./modules/products/products.module"
+import { ProductModule } from "./modules/product/product.module"
 import { UploadModule } from "./modules/upload/upload.module"
-import { UsersModule } from "./modules/users/users.module"
+import { UserModule } from "./modules/user/user.module"
 
 @Module({
   imports: [
@@ -22,8 +22,8 @@ import { UsersModule } from "./modules/users/users.module"
       synchronize: true,
     }),
     AuthModule,
-    ProductsModule,
-    UsersModule,
+    ProductModule,
+    UserModule,
     UploadModule,
     AddressModule,
     AbilityModule,

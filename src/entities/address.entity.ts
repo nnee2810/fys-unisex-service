@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne } from "typeorm"
 import { UserEntity } from "."
 import { BaseEntity } from "./base.entity"
 
-@Entity("addresses")
+@Entity("address")
 export class AddressEntity extends BaseEntity {
   @Column()
   name: string
@@ -28,7 +28,9 @@ export class AddressEntity extends BaseEntity {
   @Column()
   is_default: boolean
 
-  @ManyToOne(() => UserEntity)
+  @ManyToOne(() => UserEntity, {
+    onDelete: "CASCADE",
+  })
   @JoinColumn({ name: "user_id" })
   user?: UserEntity
 }

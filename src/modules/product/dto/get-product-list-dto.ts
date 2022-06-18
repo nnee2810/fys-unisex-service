@@ -10,7 +10,7 @@ export enum ProductSort {
   PERCENT = "PERCENT",
 }
 
-export class GetProductsDto extends PaginationDto {
+export class GetProductListDto extends PaginationDto {
   @IsOptional()
   name?: string
 
