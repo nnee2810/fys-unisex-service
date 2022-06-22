@@ -1,7 +1,7 @@
 import {
   IsEmail,
+  IsMobilePhone,
   IsOptional,
-  IsPhoneNumber,
   IsString,
   Matches,
 } from "class-validator"
@@ -13,7 +13,7 @@ export class SignInByPasswordDto {
   email?: string
 
   @IsOptional()
-  @IsPhoneNumber("VN")
+  @IsMobilePhone("vi-VN")
   phone?: string
 
   @IsString()

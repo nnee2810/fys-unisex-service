@@ -31,7 +31,7 @@ export class ProductService {
       await this.productRepository.insert(product)
       return product
     } catch (error) {
-      throw new InternalServerErrorException()
+      throw new InternalServerErrorException(error?.detail)
     }
   }
 
@@ -94,7 +94,7 @@ export class ProductService {
         take,
       }
     } catch (error) {
-      throw new InternalServerErrorException()
+      throw new InternalServerErrorException(error?.detail)
     }
   }
 
@@ -108,7 +108,7 @@ export class ProductService {
       if (!product) throw new NotFoundException()
       return product
     } catch (error) {
-      throw new InternalServerErrorException()
+      throw new InternalServerErrorException(error?.detail)
     }
   }
 }

@@ -25,7 +25,7 @@ export class UserService {
       await this.userRepository.insert(user)
       return user
     } catch (error) {
-      let message = ""
+      let message = error?.detail
       switch (error?.constraint) {
         case Key.UNIQUE_USER_EMAIL_CONSTRAINT:
           message = Message.EMAIL_ALREADY_EXIST
@@ -56,7 +56,7 @@ export class UserService {
       })
       return user
     } catch (error) {
-      throw new InternalServerErrorException()
+      throw new InternalServerErrorException(error?.detail)
     }
   }
 
@@ -81,7 +81,7 @@ export class UserService {
       const user = await this.getUserById(id)
       return user
     } catch (error) {
-      throw new InternalServerErrorException()
+      throw new InternalServerErrorException(error?.detail)
     }
   }
 
@@ -97,7 +97,7 @@ export class UserService {
       })
       return fileUpload.src
     } catch (error) {
-      throw new InternalServerErrorException()
+      throw new InternalServerErrorException(error?.detail)
     }
   }
 }

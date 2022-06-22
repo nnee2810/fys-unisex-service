@@ -1,4 +1,4 @@
-import { IsEmail, IsPhoneNumber, IsString, Matches } from "class-validator"
+import { IsEmail, IsMobilePhone, IsString, Matches } from "class-validator"
 import { Regex } from "src/configs/constants"
 
 export class CreateUserDto {
@@ -6,7 +6,7 @@ export class CreateUserDto {
   name: string
 
   @IsString()
-  @IsPhoneNumber("VN")
+  @IsMobilePhone("vi-VN")
   phone: string
 
   @IsString()
