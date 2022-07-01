@@ -1,10 +1,10 @@
-import { IsBoolean, IsMobilePhone, IsNumber, IsString } from "class-validator"
+import { IsBoolean, IsNumber, IsPhoneNumber, IsString } from "class-validator"
 
 export class CreateAddressDto {
   @IsString()
   name: string
 
-  @IsMobilePhone("vi-VN")
+  @IsPhoneNumber("VN")
   phone: string
 
   @IsNumber()

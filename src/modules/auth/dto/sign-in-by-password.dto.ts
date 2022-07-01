@@ -1,20 +1,9 @@
-import {
-  IsEmail,
-  IsMobilePhone,
-  IsOptional,
-  IsString,
-  Matches,
-} from "class-validator"
+import { IsPhoneNumber, IsString, Matches } from "class-validator"
 import { Regex } from "src/configs/constants"
 
 export class SignInByPasswordDto {
-  @IsOptional()
-  @IsEmail()
-  email?: string
-
-  @IsOptional()
-  @IsMobilePhone("vi-VN")
-  phone?: string
+  @IsPhoneNumber("VN")
+  phone: string
 
   @IsString()
   @Matches(Regex.PASSWORD)

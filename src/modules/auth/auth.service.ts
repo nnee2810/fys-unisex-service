@@ -1,7 +1,6 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common"
 import { JwtService } from "@nestjs/jwt"
 import * as bcrypt from "bcrypt"
-import { Message } from "src/configs/constants"
 import { UserService } from "../user/user.service"
 import { SignInByPasswordDto } from "./dto"
 
@@ -12,25 +11,20 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signIn({
-    email,
-    phone,
-    password,
-  }: SignInByPasswordDto): Promise<string> {
+  async signIn({ phone, password }: SignInByPasswordDto): Promise<string> {
     const user = await this.userService.getUser({
       select: {
         id: true,
         password: true,
       },
       where: {
-        email,
         phone,
       },
     })
 
-    if (!user) throw new UnauthorizedException(Message.SIGN_IN_FAIL)
+    if (!user) throw new UnauthorizedException("SIGN_IN_FAIL")
     if (!(await bcrypt.compare(password, user.password)))
-      throw new UnauthorizedException(Message.SIGN_IN_FAIL)
+      throw new UnauthorizedException("SIGN_IN_FAIL")
 
     const accessToken = this.jwtService.sign({
       id: user.id,

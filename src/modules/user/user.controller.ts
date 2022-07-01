@@ -6,7 +6,7 @@ import {
   Param,
   Patch,
   Post,
-  Request,
+  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -15,7 +15,7 @@ import { FileInterceptor } from "@nestjs/platform-express"
 import { AddressEntity, UserEntity } from "src/entities"
 import { avatarFileFilter, IResponse, successResponse } from "src/helpers"
 import { AddressService } from "../address/address.service"
-import { JwtAuthGuard } from "../auth/jwt-auth.guard"
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard"
 import { CreateAddressDto, UpdateAddressDto, UpdateProfileDto } from "./dto"
 import { UserService } from "./user.service"
 
@@ -28,13 +28,13 @@ export class UserController {
   ) {}
 
   @Get("get-profile")
-  async getProfile(@Request() req): Promise<IResponse<UserEntity>> {
+  async getProfile(@Req() req): Promise<IResponse<UserEntity>> {
     return successResponse(req.user)
   }
 
   @Patch("update-profile")
   async updateProfile(
-    @Request() req,
+    @Req() req,
     @Body() body: UpdateProfileDto,
   ): Promise<IResponse<UserEntity>> {
     const user = await this.userService.updateProfile(req.user.id, body)
@@ -52,7 +52,7 @@ export class UserController {
     }),
   )
   async updateAvatar(
-    @Request() req,
+    @Req() req,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<IResponse<string>> {
     const src = await this.userService.updateAvatar(req.user.id, file)
@@ -61,7 +61,7 @@ export class UserController {
 
   @Post("create-address")
   async createAddress(
-    @Request() req,
+    @Req() req,
     @Body() body: CreateAddressDto,
   ): Promise<IResponse<AddressEntity>> {
     const address = await this.addressService.createAddress(req.user.id, body)
@@ -69,14 +69,14 @@ export class UserController {
   }
 
   @Get("get-address-list")
-  async getAddressList(@Request() req): Promise<IResponse<AddressEntity[]>> {
+  async getAddressList(@Req() req): Promise<IResponse<AddressEntity[]>> {
     const addressList = await this.addressService.getAddressList(req.user.id)
     return successResponse(addressList)
   }
 
   @Patch("update-address/:id")
   async updateAddress(
-    @Request() req,
+    @Req() req,
     @Param("id") id: string,
     @Body() body: UpdateAddressDto,
   ): Promise<IResponse<AddressEntity>> {

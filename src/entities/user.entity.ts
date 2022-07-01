@@ -25,9 +25,16 @@ export enum UserGender {
 }
 
 @Entity("users")
-@Unique(Key.UNIQUE_USER_EMAIL_CONSTRAINT, ["email"])
 @Unique(Key.UNIQUE_USER_PHONE_CONSTRAINT, ["phone"])
 export class UserEntity extends BaseEntity {
+  @Column()
+  phone: string
+
+  @Column({
+    select: false,
+  })
+  password: string
+
   @Column()
   name: string
 
@@ -37,17 +44,6 @@ export class UserEntity extends BaseEntity {
     nullable: true,
   })
   gender?: UserGender
-
-  @Column()
-  email: string
-
-  @Column()
-  phone: string
-
-  @Column({
-    select: false,
-  })
-  password: string
 
   @Column({
     type: "enum",

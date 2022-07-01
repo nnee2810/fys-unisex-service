@@ -2,7 +2,6 @@ import { ValidationPipe } from "@nestjs/common"
 import { NestFactory } from "@nestjs/core"
 import { config as awsConfig } from "aws-sdk"
 import * as cookieParser from "cookie-parser"
-import "dotenv/config"
 import { AppModule } from "./app.module"
 
 async function bootstrap() {

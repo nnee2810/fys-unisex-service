@@ -1,8 +1,8 @@
 import {
   IsBoolean,
-  IsMobilePhone,
   IsNumber,
   IsOptional,
+  IsPhoneNumber,
   IsString,
 } from "class-validator"
 
@@ -12,7 +12,7 @@ export class UpdateAddressDto {
   name?: string
 
   @IsOptional()
-  @IsMobilePhone("vi-VN")
+  @IsPhoneNumber("VN")
   phone?: string
 
   @IsOptional()

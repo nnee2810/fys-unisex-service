@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
-import { Key, Message } from "src/configs/constants"
+import { Key } from "src/configs/constants"
 import { UserEntity } from "src/entities"
 import {
   FindOptionsRelations,
@@ -8,6 +8,7 @@ import {
   FindOptionsWhere,
   Repository,
 } from "typeorm"
+import { AddressService } from "../address/address.service"
 import { UploadService } from "../upload/upload.service"
 import { CreateUserDto, UpdateProfileDto } from "./dto"
 
@@ -17,21 +18,39 @@ export class UserService {
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
     private uploadService: UploadService,
+    private addressService: AddressService,
   ) {}
 
-  async createUser(data: CreateUserDto): Promise<UserEntity> {
+  async createUser({
+    phone,
+    password,
+    name,
+    province_code,
+    district_code,
+    ward_code,
+    address_detail,
+  }: CreateUserDto): Promise<void> {
     try {
-      const user = this.userRepository.create(data)
+      const user = this.userRepository.create({
+        phone,
+        password,
+        name,
+      })
       await this.userRepository.insert(user)
-      return user
+      await this.addressService.createAddress(user.id, {
+        name,
+        phone,
+        province_code,
+        district_code,
+        ward_code,
+        address_detail,
+        is_default: true,
+      })
     } catch (error) {
       let message = error?.detail
       switch (error?.constraint) {
-        case Key.UNIQUE_USER_EMAIL_CONSTRAINT:
-          message = Message.EMAIL_ALREADY_EXIST
-          break
         case Key.UNIQUE_USER_PHONE_CONSTRAINT:
-          message = Message.PHONE_ALREADY_EXIST
+          message = "PHONE_ALREADY_EXIST"
           break
       }
 
@@ -89,8 +108,9 @@ export class UserService {
     try {
       const user = await this.getUserById(id)
       if (user?.avatar?.id) await this.uploadService.deleteFile(user.avatar.id)
-      const fileUpload = await this.uploadService.uploadFile(file, {
-        user,
+      const fileUpload = await this.uploadService.uploadFile({
+        file,
+        folder: "avatars/",
       })
       await this.userRepository.update(id, {
         avatar: fileUpload,
