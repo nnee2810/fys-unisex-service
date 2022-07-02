@@ -1,9 +1,10 @@
-import { Body, Controller, Post } from "@nestjs/common"
+import { BadRequestException, Body, Controller, Post } from "@nestjs/common"
+import { Message } from "src/configs/constants"
 import { IResponse, successResponse } from "src/helpers"
 import { CreateUserDto } from "../user/dto"
 import { UserService } from "../user/user.service"
 import { AuthService } from "./auth.service"
-import { CheckPhoneDto, SignInByPasswordDto } from "./dto"
+import { ActionOTP, SendOTPDto, SignInByPasswordDto, VerifyOTPDto } from "./dto"
 
 @Controller("auth")
 export class AuthController {
@@ -24,15 +25,26 @@ export class AuthController {
     return successResponse("SIGN_UP_SUCCESS")
   }
 
-  @Post("check-phone")
-  async checkPhone(
-    @Body() { phone }: CheckPhoneDto,
-  ): Promise<IResponse<boolean>> {
-    const user = this.userService.getUser({
-      where: {
-        phone,
-      },
-    })
-    return successResponse(!!user)
+  @Post("send-otp")
+  async sendOTP(@Body() body: SendOTPDto): Promise<IResponse<string>> {
+    switch (body.action) {
+      case ActionOTP.SIGN_UP: {
+        const user = await this.userService.getUser({
+          where: {
+            phone: body.phone,
+          },
+        })
+        if (user) throw new BadRequestException(Message.PHONE_ALREADY_EXIST)
+        break
+      }
+    }
+    const sessionInfo = await this.authService.sendOTP(body)
+    return successResponse(sessionInfo)
+  }
+
+  @Post("verify-otp")
+  async checkPhone(@Body() data: VerifyOTPDto): Promise<IResponse<null>> {
+    await this.authService.verifyOTP(data)
+    return successResponse(null)
   }
 }

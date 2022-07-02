@@ -9,15 +9,14 @@ import { UploadFileDto } from "./dto"
 
 @Injectable()
 export class UploadService {
-  private s3 = new S3()
-
   constructor(
     @InjectRepository(FileUploadEntity)
     private uploadRepository: Repository<FileUploadEntity>,
   ) {}
 
   async uploadFile({ file, folder }: UploadFileDto): Promise<FileUploadEntity> {
-    const uploadResult = await this.s3
+    const s3 = new S3()
+    const uploadResult = await s3
       .upload({
         Bucket: process.env.AWS_BUCKET_NAME,
         Body: file.buffer,
@@ -33,8 +32,9 @@ export class UploadService {
   }
 
   async deleteFile(id: string): Promise<void> {
+    const s3 = new S3()
     const fileUpload = await this.uploadRepository.findOne({ where: { id } })
-    await this.s3
+    await s3
       .deleteObject({
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: fileUpload.key,

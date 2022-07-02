@@ -1,8 +1,15 @@
-import { IsNumber, IsPhoneNumber, IsString, Matches } from "class-validator"
+import {
+  IsNumber,
+  IsPhoneNumber,
+  IsString,
+  Matches,
+  MaxLength,
+} from "class-validator"
 import { Regex } from "src/configs/constants"
 
 export class CreateUserDto {
   @IsPhoneNumber("VN")
+  @MaxLength(10)
   phone: string
 
   @IsString()

@@ -4,6 +4,7 @@ import {
   IsOptional,
   IsPhoneNumber,
   IsString,
+  MaxLength,
 } from "class-validator"
 
 export class UpdateAddressDto {
@@ -13,6 +14,7 @@ export class UpdateAddressDto {
 
   @IsOptional()
   @IsPhoneNumber("VN")
+  @MaxLength(10)
   phone?: string
 
   @IsOptional()

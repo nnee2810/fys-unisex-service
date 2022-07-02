@@ -117,7 +117,7 @@ export class UserService {
       })
       return fileUpload.src
     } catch (error) {
-      throw new InternalServerErrorException(error?.detail)
+      throw new InternalServerErrorException(error?.message)
     }
   }
 }
