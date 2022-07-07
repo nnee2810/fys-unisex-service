@@ -1,4 +1,5 @@
-import { Column, Entity, JoinColumn, ManyToOne } from "typeorm"
+import { deleteWhiteSpace } from "src/utils"
+import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne } from "typeorm"
 import { UserEntity } from "."
 import { BaseEntity } from "./base.entity"
 
@@ -33,4 +34,11 @@ export class AddressEntity extends BaseEntity {
   })
   @JoinColumn({ name: "user_id" })
   user?: UserEntity
+
+  @BeforeInsert()
+  async transformValues() {
+    if (this.name) this.name = deleteWhiteSpace(this.name)
+    if (this.address_detail)
+      this.address_detail = deleteWhiteSpace(this.address_detail)
+  }
 }

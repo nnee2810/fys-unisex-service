@@ -6,6 +6,7 @@ import { AppService } from "./app.service"
 import { AddressModule } from "./modules/address/address.module"
 import { AuthModule } from "./modules/auth/auth.module"
 import { ProductModule } from "./modules/product/product.module"
+import { SmsModule } from "./modules/sms/sms.module"
 import { UploadModule } from "./modules/upload/upload.module"
 import { UserModule } from "./modules/user/user.module"
 
@@ -27,6 +28,7 @@ import { UserModule } from "./modules/user/user.module"
     UploadModule,
     AddressModule,
     AbilityModule,
+    SmsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

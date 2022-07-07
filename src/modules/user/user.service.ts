@@ -1,16 +1,19 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
-import { Key } from "src/configs/constants"
+import * as bcrypt from "bcrypt"
+import { isString } from "class-validator"
+import { Key, Message } from "src/configs/constants"
 import { UserEntity } from "src/entities"
+import { deleteWhiteSpace } from "src/utils"
 import {
   FindOptionsRelations,
   FindOptionsSelect,
   FindOptionsWhere,
   Repository,
 } from "typeorm"
-import { AddressService } from "../address/address.service"
+import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity"
 import { UploadService } from "../upload/upload.service"
-import { CreateUserDto, UpdateProfileDto } from "./dto"
+import { CreateUserDto } from "./dto"
 
 @Injectable()
 export class UserService {
@@ -18,18 +21,13 @@ export class UserService {
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
     private uploadService: UploadService,
-    private addressService: AddressService,
   ) {}
 
   async createUser({
     phone,
     password,
     name,
-    province_code,
-    district_code,
-    ward_code,
-    address_detail,
-  }: CreateUserDto): Promise<void> {
+  }: CreateUserDto): Promise<UserEntity> {
     try {
       const user = this.userRepository.create({
         phone,
@@ -37,23 +35,14 @@ export class UserService {
         name,
       })
       await this.userRepository.insert(user)
-      await this.addressService.createAddress(user.id, {
-        name,
-        phone,
-        province_code,
-        district_code,
-        ward_code,
-        address_detail,
-        is_default: true,
-      })
+      return user
     } catch (error) {
       let message = error?.detail
       switch (error?.constraint) {
         case Key.UNIQUE_USER_PHONE_CONSTRAINT:
-          message = "PHONE_ALREADY_EXIST"
+          message = Message.PHONE_ALREADY_EXIST
           break
       }
-
       throw new InternalServerErrorException(message)
     }
   }
@@ -79,42 +68,34 @@ export class UserService {
     }
   }
 
-  getUserById(
-    id: string,
-    options?: {
-      select?: FindOptionsSelect<UserEntity>
-      relations?: FindOptionsRelations<UserEntity>
-    },
+  async updateUser(
+    where: FindOptionsWhere<UserEntity>,
+    data: QueryDeepPartialEntity<UserEntity>,
   ) {
-    return this.getUser({
-      where: {
-        id,
-      },
-      ...options,
-    })
-  }
-
-  async updateProfile(id: string, data: UpdateProfileDto): Promise<UserEntity> {
     try {
-      await this.userRepository.update(id, data)
-      const user = await this.getUserById(id)
-      return user
+      if (isString(data.name)) data.name = deleteWhiteSpace(data.name)
+      if (isString(data.password))
+        data.password = await bcrypt.hash(data.password, 10)
+      await this.userRepository.update(where, data)
     } catch (error) {
-      throw new InternalServerErrorException(error?.detail)
+      throw new InternalServerErrorException(error?.message)
     }
   }
 
   async updateAvatar(id: string, file: Express.Multer.File): Promise<string> {
     try {
-      const user = await this.getUserById(id)
+      const user = await this.getUser({ where: { id } })
       if (user?.avatar?.id) await this.uploadService.deleteFile(user.avatar.id)
       const fileUpload = await this.uploadService.uploadFile({
         file,
         folder: "avatars/",
       })
-      await this.userRepository.update(id, {
-        avatar: fileUpload,
-      })
+      await this.updateUser(
+        { id },
+        {
+          avatar: fileUpload,
+        },
+      )
       return fileUpload.src
     } catch (error) {
       throw new InternalServerErrorException(error?.message)

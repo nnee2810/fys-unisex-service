@@ -36,9 +36,9 @@ export class UserController {
   async updateProfile(
     @Req() req,
     @Body() body: UpdateProfileDto,
-  ): Promise<IResponse<UserEntity>> {
-    const user = await this.userService.updateProfile(req.user.id, body)
-    return successResponse(user)
+  ): Promise<IResponse<string>> {
+    await this.userService.updateUser({ id: req.user.id }, body)
+    return successResponse("UPDATE_PROFILE_SUCCESS")
   }
 
   @Patch("update-avatar")

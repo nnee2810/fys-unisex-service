@@ -3,7 +3,6 @@ import { Key } from "src/configs/constants"
 import { deleteWhiteSpace } from "src/utils"
 import {
   BeforeInsert,
-  BeforeUpdate,
   Column,
   Entity,
   JoinColumn,
@@ -66,13 +65,8 @@ export class UserEntity extends BaseEntity {
   address?: AddressEntity[]
 
   @BeforeInsert()
-  @BeforeUpdate()
   async transformValues() {
-    if (this.name) {
-      this.name = deleteWhiteSpace(this.name)
-    }
-    if (this.password) {
-      this.password = await bcrypt.hash(this.password, 10)
-    }
+    if (this.name) this.name = deleteWhiteSpace(this.name)
+    if (this.password) this.password = await bcrypt.hash(this.password, 10)
   }
 }

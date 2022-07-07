@@ -5,7 +5,8 @@ export const Regex = {
 }
 export enum Message {
   SIGN_IN_FAIL = "Thông tin đăng nhập không chính xác",
-  PHONE_ALREADY_EXIST = "Số điện thoại đã được sử dụng",
+  PHONE_ALREADY_EXIST = "Số điện thoại này đã được sử dụng",
+  PHONE_DOES_NOT_EXIST = "Không tìm thấy tài khoản nào",
 }
 export enum PostgresErrorCode {
   UNIQUE_VIOLATION = "23505",

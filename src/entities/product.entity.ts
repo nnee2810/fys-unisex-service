@@ -94,13 +94,9 @@ export class ProductEntity extends BaseEntity {
   @BeforeInsert()
   @BeforeUpdate()
   async transformValues() {
-    if (this.name) {
-      this.name = deleteWhiteSpace(this.name)
-    }
-
-    if (this.price && this.sale_price) {
+    if (this.name) this.name = deleteWhiteSpace(this.name)
+    if (this.price && this.sale_price)
       this.sale_percent = 100 - Math.round(this.sale_price / this.price)
-    }
   }
 
   protected sale_percent: number

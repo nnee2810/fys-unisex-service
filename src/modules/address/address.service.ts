@@ -1,7 +1,9 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
+import { isString } from "class-validator"
 import { AddressEntity } from "src/entities"
 import { getAddress } from "src/helpers"
+import { deleteWhiteSpace } from "src/utils"
 import { Repository } from "typeorm"
 import { CreateAddressDto, UpdateAddressDto } from "../user/dto"
 
@@ -86,6 +88,10 @@ export class AddressService {
   ): Promise<AddressEntity> {
     try {
       if (data.is_default) await this.removeDefaultAddress(userId)
+
+      if (isString(data.name)) data.name = deleteWhiteSpace(data.name)
+      if (isString(data.address_detail))
+        data.address_detail = deleteWhiteSpace(data.address_detail)
       await this.addressRepository.update(addressId, data)
       const address = await this.getAddressById(addressId)
       return address
