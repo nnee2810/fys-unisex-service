@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -12,11 +13,18 @@ import {
   UseInterceptors,
 } from "@nestjs/common"
 import { FileInterceptor } from "@nestjs/platform-express"
+import { Message } from "src/configs/constants"
 import { AddressEntity, UserEntity } from "src/entities"
 import { avatarFileFilter, IResponse, successResponse } from "src/helpers"
 import { AddressService } from "../address/address.service"
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard"
-import { CreateAddressDto, UpdateAddressDto, UpdateProfileDto } from "./dto"
+import { SmsService } from "../sms/sms.service"
+import {
+  CreateAddressDto,
+  UpdateAddressDto,
+  UpdatePhoneDto,
+  UpdateProfileDto,
+} from "./dto"
 import { UserService } from "./user.service"
 
 @UseGuards(JwtAuthGuard)
@@ -25,6 +33,7 @@ export class UserController {
   constructor(
     private userService: UserService,
     private addressService: AddressService,
+    private smsService: SmsService,
   ) {}
 
   @Get("get-profile")
@@ -36,9 +45,35 @@ export class UserController {
   async updateProfile(
     @Req() req,
     @Body() body: UpdateProfileDto,
-  ): Promise<IResponse<string>> {
+  ): Promise<IResponse<null>> {
     await this.userService.updateUser({ id: req.user.id }, body)
-    return successResponse("UPDATE_PROFILE_SUCCESS")
+    return successResponse(null, "UPDATE_PROFILE_SUCCESS")
+  }
+
+  @Patch("update-phone")
+  async updatePhone(
+    @Req() req,
+    @Body() { otp, session_info, new_phone }: UpdatePhoneDto,
+  ): Promise<IResponse<null>> {
+    const user = await this.userService.getUser({
+      where: {
+        phone: new_phone,
+      },
+    })
+    if (user) throw new BadRequestException(Message.PHONE_ALREADY_EXIST)
+    await this.smsService.verifyOTP({
+      otp,
+      session_info,
+    })
+    await this.userService.updateUser(
+      {
+        id: req.user.id,
+      },
+      {
+        phone: new_phone,
+      },
+    )
+    return successResponse(null, "UPDATE_PHONE_SUCCESS")
   }
 
   @Patch("update-avatar")
@@ -89,8 +124,8 @@ export class UserController {
   }
 
   @Delete("delete-address/:id")
-  async deleteAddress(@Param("id") id: string): Promise<IResponse<string>> {
+  async deleteAddress(@Param("id") id: string): Promise<IResponse<null>> {
     await this.addressService.deleteAddressById(id)
-    return successResponse(id)
+    return successResponse(null, "DELETE_USER_SUCCESS")
   }
 }

@@ -26,7 +26,7 @@ export class AuthController {
       },
     })
     switch (body.action) {
-      case ActionOTP.SIGN_UP: {
+      case (ActionOTP.SIGN_UP, ActionOTP.UPDATE_PHONE): {
         if (user) throw new BadRequestException(Message.PHONE_ALREADY_EXIST)
         break
       }
@@ -59,7 +59,7 @@ export class AuthController {
       district_code,
       address_detail,
     }: SignUpDto,
-  ): Promise<IResponse<string>> {
+  ): Promise<IResponse<null>> {
     await this.smsService.verifyOTP({ otp, session_info })
     const user = await this.userService.createUser({
       phone,
@@ -75,7 +75,7 @@ export class AuthController {
       address_detail,
       is_default: true,
     })
-    return successResponse("SIGN_UP_SUCCESS")
+    return successResponse(null, "SIGN_UP_SUCCESS")
   }
 
   @Post("reset-password")
