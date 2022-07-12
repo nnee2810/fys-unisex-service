@@ -38,7 +38,6 @@ export class ProductService {
   async getProductList({
     name,
     classify,
-    gender,
     size,
     min_price,
     max_price,
@@ -54,7 +53,6 @@ export class ProductService {
       const where: FindOptionsWhere<ProductEntity> = {
         name: name && ILike("%" + name + "%"),
         classify,
-        gender,
         sizes: size && ArrayContains([size]),
         price:
           min_price && max_price

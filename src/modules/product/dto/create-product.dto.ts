@@ -7,7 +7,7 @@ import {
   IsString,
   Min,
 } from "class-validator"
-import { ProductClassify, ProductGender, ProductSize } from "src/entities"
+import { ProductClassify, ProductSize } from "src/entities"
 
 export class CreateProductDto {
   @IsString()
@@ -19,10 +19,6 @@ export class CreateProductDto {
   @IsString()
   @IsIn(Object.keys(ProductClassify))
   classify: ProductClassify
-
-  @IsString()
-  @IsIn(Object.keys(ProductGender))
-  gender: ProductGender
 
   @IsString()
   @IsArray()

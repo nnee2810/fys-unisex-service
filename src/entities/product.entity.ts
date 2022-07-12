@@ -9,12 +9,6 @@ export enum ProductClassify {
   SET = "SET",
 }
 
-export enum ProductGender {
-  MALE = "MALE",
-  FEMALE = "FEMALE",
-  UNISEX = "UNISEX",
-}
-
 export enum ProductSize {
   S = "S",
   M = "M",
@@ -45,13 +39,6 @@ export class ProductEntity extends BaseEntity {
     nullable: true,
   })
   classify: ProductClassify
-
-  @Column({
-    type: "enum",
-    enum: ProductGender,
-    nullable: true,
-  })
-  gender: ProductGender
 
   @Column({
     type: "enum",
