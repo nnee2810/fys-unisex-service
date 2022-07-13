@@ -1,7 +1,7 @@
 import { Type } from "class-transformer"
 import { IsBoolean, IsIn, IsNumber, IsOptional } from "class-validator"
 import { PaginationDto } from "src/dto"
-import { ProductClassify, ProductSize } from "src/entities"
+import { ProductClassify } from "src/entities"
 
 export enum ProductSort {
   TIME = "TIME",
@@ -17,10 +17,6 @@ export class GetProductListDto extends PaginationDto {
   @IsOptional()
   @IsIn(Object.keys(ProductClassify))
   classify?: ProductClassify
-
-  @IsOptional()
-  @IsIn(Object.keys(ProductSize))
-  size?: ProductSize
 
   @IsOptional()
   @IsNumber()

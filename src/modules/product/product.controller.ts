@@ -13,7 +13,7 @@ export class ProductController {
     @Body() body: CreateProductDto,
   ): Promise<IResponse<ProductEntity>> {
     const product = await this.productService.createProduct(body)
-    return successResponse(product)
+    return successResponse(product, "CREATE_PRODUCT_SUCCESS")
   }
 
   @Get("get-product-list")
@@ -21,7 +21,8 @@ export class ProductController {
     @Query()
     query: GetProductListDto,
   ): Promise<IResponse<IPagination<ProductEntity[]>>> {
-    return successResponse(await this.productService.getProductList(query))
+    const productList = await this.productService.getProductList(query)
+    return successResponse(productList, "GET_PRODUCT_LIST_SUCCESS")
   }
 
   @Get("get-product/:id")
@@ -29,6 +30,6 @@ export class ProductController {
     @Param("id") id: string,
   ): Promise<IResponse<ProductEntity>> {
     const product = await this.productService.getProductById(id)
-    return successResponse(product)
+    return successResponse(product, "GET_PRODUCT_SUCCESS")
   }
 }

@@ -7,7 +7,6 @@ import { InjectRepository } from "@nestjs/typeorm"
 import { ProductEntity } from "src/entities"
 import { IPagination } from "src/helpers"
 import {
-  ArrayContains,
   Between,
   FindOptionsOrder,
   FindOptionsWhere,
@@ -38,7 +37,6 @@ export class ProductService {
   async getProductList({
     name,
     classify,
-    size,
     min_price,
     max_price,
     on_sale,
@@ -53,7 +51,6 @@ export class ProductService {
       const where: FindOptionsWhere<ProductEntity> = {
         name: name && ILike("%" + name + "%"),
         classify,
-        sizes: size && ArrayContains([size]),
         price:
           min_price && max_price
             ? Between(min_price, max_price)

@@ -85,18 +85,15 @@ export class UserService {
   async updateAvatar(id: string, file: Express.Multer.File): Promise<string> {
     try {
       const user = await this.getUser({ where: { id } })
-      if (user?.avatar?.id) await this.uploadService.deleteFile(user.avatar.id)
-      const fileUpload = await this.uploadService.uploadFile({
-        file,
-        folder: "avatars/",
-      })
+      if (user?.avatar) await this.uploadService.deleteAvatar(user.avatar)
+      const key = await this.uploadService.uploadAvatar(file)
       await this.updateUser(
         { id },
         {
-          avatar: fileUpload,
+          avatar: key,
         },
       )
-      return fileUpload.src
+      return key
     } catch (error) {
       throw new InternalServerErrorException(error?.message)
     }

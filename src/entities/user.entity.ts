@@ -1,16 +1,8 @@
 import * as bcrypt from "bcrypt"
 import { Key } from "src/configs/constants"
 import { deleteWhiteSpace } from "src/utils"
-import {
-  BeforeInsert,
-  Column,
-  Entity,
-  JoinColumn,
-  OneToMany,
-  OneToOne,
-  Unique,
-} from "typeorm"
-import { AddressEntity, BaseEntity, FileUploadEntity } from "."
+import { BeforeInsert, Column, Entity, OneToMany, Unique } from "typeorm"
+import { AddressEntity, BaseEntity } from "."
 
 export enum UserRole {
   CUSTOMER = "CUSTOMER",
@@ -38,26 +30,21 @@ export class UserEntity extends BaseEntity {
   name: string
 
   @Column({
-    type: "enum",
+    nullable: true,
+  })
+  avatar?: string
+
+  @Column("enum", {
     enum: UserGender,
     nullable: true,
   })
   gender?: UserGender
 
-  @Column({
-    type: "enum",
+  @Column("enum", {
     enum: UserRole,
     default: UserRole.CUSTOMER,
   })
   role: UserRole
-
-  @OneToOne(() => FileUploadEntity, {
-    eager: true,
-    nullable: true,
-    onDelete: "SET NULL",
-  })
-  @JoinColumn({ name: "avatar_id" })
-  avatar?: FileUploadEntity
 
   @OneToMany(() => AddressEntity, (address) => address.user, {
     nullable: true,

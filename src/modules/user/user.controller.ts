@@ -91,7 +91,7 @@ export class UserController {
     @UploadedFile() file: Express.Multer.File,
   ): Promise<IResponse<string>> {
     const src = await this.userService.updateAvatar(req.user.id, file)
-    return successResponse(src)
+    return successResponse(src, "UPDATE_AVATAR_SUCCESS")
   }
 
   @Post("create-address")
@@ -100,7 +100,7 @@ export class UserController {
     @Body() body: CreateAddressDto,
   ): Promise<IResponse<AddressEntity>> {
     const address = await this.addressService.createAddress(req.user.id, body)
-    return successResponse(address)
+    return successResponse(address, "CREATE_ADDRESS_SUCCESS")
   }
 
   @Get("get-address-list")
@@ -120,12 +120,12 @@ export class UserController {
       id,
       body,
     )
-    return successResponse(address)
+    return successResponse(address, "UPDATE_ADDRESS_SUCCESS")
   }
 
   @Delete("delete-address/:id")
   async deleteAddress(@Param("id") id: string): Promise<IResponse<null>> {
     await this.addressService.deleteAddressById(id)
-    return successResponse(null, "DELETE_USER_SUCCESS")
+    return successResponse(null, "DELETE_ADDRESS_SUCCESS")
   }
 }

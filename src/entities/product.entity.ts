@@ -23,30 +23,11 @@ export class ProductEntity extends BaseEntity {
   @Column()
   name: string
 
-  @Column()
-  slug: string
-
-  @Column({
-    type: "varchar",
-    array: true,
-    default: [],
-  })
-  images: string[]
-
-  @Column({
-    type: "enum",
+  @Column("enum", {
     enum: ProductClassify,
     nullable: true,
   })
   classify: ProductClassify
-
-  @Column({
-    type: "enum",
-    enum: ProductSize,
-    array: true,
-    default: [],
-  })
-  sizes: string[]
 
   @Column({
     default: 0,
