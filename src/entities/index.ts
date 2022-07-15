@@ -1,5 +1,6 @@
 export * from "./address.entity"
 export * from "./base.entity"
-export * from "./file-upload.entity"
+export * from "./file-upload-base.entity"
+export * from "./product-image.entity"
 export * from "./product.entity"
 export * from "./user.entity"

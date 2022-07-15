@@ -56,22 +56,6 @@ export class AddressService {
     }
   }
 
-  async getAddressList(userId: string): Promise<AddressEntity[]> {
-    try {
-      const addressList = await this.addressRepository.find({
-        where: {
-          user: { id: userId },
-        },
-        order: {
-          is_default: "desc",
-        },
-      })
-      return addressList
-    } catch (error) {
-      throw new InternalServerErrorException(error?.detail)
-    }
-  }
-
   async getAddressById(id: string): Promise<AddressEntity> {
     try {
       const address = await this.addressRepository.findOne({ where: { id } })

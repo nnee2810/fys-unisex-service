@@ -1,42 +1,15 @@
 import { Injectable } from "@nestjs/common"
-import { InjectRepository } from "@nestjs/typeorm"
 import { S3 } from "aws-sdk"
-import { FileUploadEntity } from "src/entities"
+import { FileUpload } from "src/interfaces"
 import { getAwsCloudFrontUrl } from "src/utils"
-import { Repository } from "typeorm"
 import { v4 } from "uuid"
 import { UploadFileDto } from "./dto"
 
 @Injectable()
 export class UploadService {
-  constructor(
-    @InjectRepository(FileUploadEntity)
-    private uploadRepository: Repository<FileUploadEntity>,
-  ) {}
+  constructor() {}
 
-  async uploadAvatar(file: Express.Multer.File): Promise<string> {
-    const s3 = new S3()
-    const uploadResult = await s3
-      .upload({
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Body: file.buffer,
-        Key: ["avatars", v4()].join("/"),
-      })
-      .promise()
-    return getAwsCloudFrontUrl(uploadResult.Key)
-  }
-
-  async deleteAvatar(key: string): Promise<void> {
-    const s3 = new S3()
-    await s3
-      .deleteObject({
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: key,
-      })
-      .promise()
-  }
-
-  async uploadFile({ file, folder }: UploadFileDto): Promise<FileUploadEntity> {
+  async uploadFile({ file, folder }: UploadFileDto): Promise<FileUpload> {
     const s3 = new S3()
     const uploadResult = await s3
       .upload({
@@ -45,11 +18,20 @@ export class UploadService {
         Key: [folder, v4()].join(""),
       })
       .promise()
-    const fileUpload = this.uploadRepository.create({
+    const fileUpload = {
       src: getAwsCloudFrontUrl(uploadResult.Key),
       key: uploadResult.Key,
-    })
-    await this.uploadRepository.insert(fileUpload)
+    }
     return fileUpload
+  }
+
+  async deleteFile(key: string): Promise<void> {
+    const s3 = new S3()
+    await s3
+      .deleteObject({
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: key,
+      })
+      .promise()
   }
 }

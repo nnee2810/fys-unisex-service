@@ -1,6 +1,6 @@
 import { deleteWhiteSpace } from "src/utils"
-import { AfterLoad, BeforeInsert, BeforeUpdate, Column, Entity } from "typeorm"
-import { BaseEntity } from "."
+import { BeforeInsert, Column, Entity, OneToMany } from "typeorm"
+import { BaseEntity, ProductImageEntity } from "."
 
 export enum ProductClassify {
   SHIRT = "SHIRT",
@@ -59,19 +59,13 @@ export class ProductEntity extends BaseEntity {
   })
   is_featured: boolean
 
+  @OneToMany(() => ProductImageEntity, (productImage) => productImage.product, {
+    nullable: true,
+  })
+  images?: ProductImageEntity[]
+
   @BeforeInsert()
-  @BeforeUpdate()
   async transformValues() {
     if (this.name) this.name = deleteWhiteSpace(this.name)
-    if (this.price && this.sale_price)
-      this.sale_percent = 100 - Math.round(this.sale_price / this.price)
-  }
-
-  protected sale_percent: number
-  @AfterLoad()
-  getsale_percent() {
-    if (this.price && this.sale_price) {
-      this.sale_percent = Math.round(100 - (this.sale_price / this.price) * 100)
-    } else this.sale_percent = 0
   }
 }

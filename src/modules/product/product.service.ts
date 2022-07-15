@@ -15,7 +15,12 @@ import {
   MoreThanOrEqual,
   Repository,
 } from "typeorm"
-import { CreateProductDto, GetProductListDto, ProductSort } from "./dto"
+import {
+  CreateProductDto,
+  GetProductListDto,
+  ProductSort,
+  UpdateProductDto,
+} from "./dto"
 
 @Injectable()
 export class ProductService {
@@ -72,7 +77,7 @@ export class ProductService {
             : sort === ProductSort.PRICE_DESC
             ? "desc"
             : undefined,
-        updated_at: sort === ProductSort.TIME ? "desc" : undefined,
+        updated_at: "desc",
       }
 
       const [data, total] = await this.productRepository.findAndCount({
@@ -80,6 +85,9 @@ export class ProductService {
         order,
         skip: (page - 1) * take,
         take,
+        relations: {
+          images: true,
+        },
       })
 
       return {
@@ -102,6 +110,22 @@ export class ProductService {
       })
       if (!product) throw new NotFoundException()
       return product
+    } catch (error) {
+      throw new InternalServerErrorException(error?.detail)
+    }
+  }
+
+  async updateProduct(id: string, data: UpdateProductDto): Promise<void> {
+    try {
+      await this.productRepository.update(id, data)
+    } catch (error) {
+      throw new InternalServerErrorException(error?.detail)
+    }
+  }
+
+  async deleteProduct(id: string): Promise<void> {
+    try {
+      await this.productRepository.delete(id)
     } catch (error) {
       throw new InternalServerErrorException(error?.detail)
     }

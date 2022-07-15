@@ -1,7 +1,6 @@
-import { Column, Entity } from "typeorm"
+import { Column } from "typeorm"
 import { BaseEntity } from "."
 
-@Entity("uploads")
 export class FileUploadEntity extends BaseEntity {
   @Column()
   src: string

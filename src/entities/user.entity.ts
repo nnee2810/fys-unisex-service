@@ -10,6 +10,11 @@ export enum UserRole {
   ADMIN = "ADMIN",
 }
 
+export enum StaffRole {
+  MOD = "MOD",
+  ADMIN = "ADMIN",
+}
+
 export enum UserGender {
   MALE = "MALE",
   FEMALE = "FEMALE",
@@ -49,7 +54,7 @@ export class UserEntity extends BaseEntity {
   @OneToMany(() => AddressEntity, (address) => address.user, {
     nullable: true,
   })
-  address?: AddressEntity[]
+  address_list?: AddressEntity[]
 
   @BeforeInsert()
   async transformValues() {

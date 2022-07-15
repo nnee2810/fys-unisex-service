@@ -29,11 +29,11 @@ export class AddressEntity extends BaseEntity {
   @Column()
   is_default: boolean
 
-  @ManyToOne(() => UserEntity, {
+  @ManyToOne(() => UserEntity, (user) => user.address_list, {
     onDelete: "CASCADE",
   })
   @JoinColumn({ name: "user_id" })
-  user?: UserEntity
+  user: UserEntity
 
   @BeforeInsert()
   async transformValues() {

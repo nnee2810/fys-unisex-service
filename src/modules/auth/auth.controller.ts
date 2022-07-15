@@ -36,13 +36,13 @@ export class AuthController {
       }
     }
     const sessionInfo = await this.smsService.sendOTP(body)
-    return successResponse(sessionInfo)
+    return successResponse(sessionInfo, "SEND_OTP_SUCCESS")
   }
 
   @Post("sign-in")
   async signIn(@Body() body: SignInByPasswordDto): Promise<IResponse<string>> {
     const accessToken = await this.authService.signIn(body)
-    return successResponse(accessToken)
+    return successResponse(accessToken, "SIGN_IN_SUCCESS")
   }
 
   @Post("sign-up")
@@ -81,9 +81,9 @@ export class AuthController {
   @Post("reset-password")
   async resetPassword(
     @Body() { otp, session_info, phone, password }: ResetPasswordDto,
-  ) {
+  ): Promise<IResponse<null>> {
     await this.smsService.verifyOTP({ otp, session_info })
     await this.userService.updateUser({ phone }, { password })
-    return successResponse("RESET_PASSWORD_SUCCESS")
+    return successResponse(null, "RESET_PASSWORD_SUCCESS")
   }
 }
