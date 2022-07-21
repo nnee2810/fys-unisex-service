@@ -9,17 +9,16 @@ import {
   Post,
   Req,
   UploadedFile,
-  UseGuards,
   UseInterceptors,
 } from "@nestjs/common"
 import { FileInterceptor } from "@nestjs/platform-express"
 import { Message } from "src/configs/constants"
 import { AddressEntity, UserEntity } from "src/entities"
-import { avatarFileFilter, IResponse, successResponse } from "src/helpers"
+import { imageFileFilter, IResponse, successResponse } from "src/helpers"
 import { RequestWithUser } from "src/interfaces"
 import { AddressService } from "../address/address.service"
-import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard"
 import { SmsService } from "../sms/sms.service"
+import { UploadService } from "../upload/upload.service"
 import {
   CreateAddressDto,
   UpdateAddressDto,
@@ -28,13 +27,13 @@ import {
 } from "./dto"
 import { UserService } from "./user.service"
 
-@UseGuards(JwtAuthGuard)
 @Controller("user")
 export class UserController {
   constructor(
     private userService: UserService,
     private addressService: AddressService,
     private smsService: SmsService,
+    private uploadService: UploadService,
   ) {}
 
   @Get("get-profile")
@@ -49,7 +48,7 @@ export class UserController {
     @Req() req: RequestWithUser,
     @Body() body: UpdateProfileDto,
   ): Promise<IResponse<null>> {
-    await this.userService.updateUser({ id: req.user.id }, body)
+    await this.userService.update({ id: req.user.id }, body)
     return successResponse(null, "UPDATE_PROFILE_SUCCESS")
   }
 
@@ -58,7 +57,7 @@ export class UserController {
     @Req() req: RequestWithUser,
     @Body() { otp, session_info, new_phone }: UpdatePhoneDto,
   ): Promise<IResponse<null>> {
-    const user = await this.userService.getUser({
+    const user = await this.userService.findOne({
       where: {
         phone: new_phone,
       },
@@ -68,7 +67,7 @@ export class UserController {
       otp,
       session_info,
     })
-    await this.userService.updateUser(
+    await this.userService.update(
       {
         id: req.user.id,
       },
@@ -82,7 +81,7 @@ export class UserController {
   @Patch("update-avatar")
   @UseInterceptors(
     FileInterceptor("file", {
-      fileFilter: avatarFileFilter,
+      fileFilter: imageFileFilter,
       limits: {
         files: 1,
         fileSize: 1024 * 1024,
@@ -93,8 +92,9 @@ export class UserController {
     @Req() req: RequestWithUser,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<IResponse<string>> {
-    const src = await this.userService.updateAvatar(req.user.id, file)
-    return successResponse(src, "UPDATE_AVATAR_SUCCESS")
+    if (req.user.avatar) await this.uploadService.delete(req.user.avatar)
+    const key = await this.userService.updateAvatar(req.user.id, file)
+    return successResponse(key, "UPDATE_AVATAR_SUCCESS")
   }
 
   @Post("create-address")
@@ -102,7 +102,7 @@ export class UserController {
     @Req() req: RequestWithUser,
     @Body() body: CreateAddressDto,
   ): Promise<IResponse<AddressEntity>> {
-    const address = await this.addressService.createAddress(req.user.id, body)
+    const address = await this.addressService.create(req.user.id, body)
     return successResponse(address, "CREATE_ADDRESS_SUCCESS")
   }
 
@@ -111,7 +111,7 @@ export class UserController {
     @Req() req: RequestWithUser,
   ): Promise<IResponse<AddressEntity[]>> {
     const addressList = (
-      await this.userService.getUser({
+      await this.userService.findOne({
         where: { id: req.user.id },
         relations: {
           address_list: true,
@@ -127,17 +127,13 @@ export class UserController {
     @Param("id") id: string,
     @Body() body: UpdateAddressDto,
   ): Promise<IResponse<AddressEntity>> {
-    const address = await this.addressService.updateAddress(
-      req.user.id,
-      id,
-      body,
-    )
+    const address = await this.addressService.update(req.user.id, id, body)
     return successResponse(address, "UPDATE_ADDRESS_SUCCESS")
   }
 
   @Delete("delete-address/:id")
   async deleteAddress(@Param("id") id: string): Promise<IResponse<null>> {
-    await this.addressService.deleteAddressById(id)
+    await this.addressService.delete(id)
     return successResponse(null, "DELETE_ADDRESS_SUCCESS")
   }
 }

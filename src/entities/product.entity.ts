@@ -42,7 +42,7 @@ export class ProductEntity extends BaseEntity {
   @Column({
     default: false,
   })
-  on_sale: boolean
+  for_sale: boolean
 
   @Column({
     default: false,

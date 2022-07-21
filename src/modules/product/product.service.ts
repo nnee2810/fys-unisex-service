@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
-import { ProductEntity } from "src/entities"
+import { ProductEntity, ProductImageEntity } from "src/entities"
 import { IPagination } from "src/helpers"
 import {
   Between,
@@ -15,6 +15,7 @@ import {
   MoreThanOrEqual,
   Repository,
 } from "typeorm"
+import { UploadService } from "../upload/upload.service"
 import {
   CreateProductDto,
   GetProductListDto,
@@ -27,24 +28,27 @@ export class ProductService {
   constructor(
     @InjectRepository(ProductEntity)
     private productRepository: Repository<ProductEntity>,
+    @InjectRepository(ProductImageEntity)
+    private productImageRepository: Repository<ProductImageEntity>,
+    private uploadService: UploadService,
   ) {}
 
-  async createProduct(data: CreateProductDto): Promise<ProductEntity> {
+  async create(data: CreateProductDto): Promise<ProductEntity> {
     try {
       const product = this.productRepository.create(data)
       await this.productRepository.insert(product)
       return product
     } catch (error) {
-      throw new InternalServerErrorException(error?.detail)
+      throw new InternalServerErrorException(error?.message || error?.detail)
     }
   }
 
-  async getProductList({
+  async find({
     name,
     classify,
     min_price,
     max_price,
-    on_sale,
+    for_sale,
     in_sale,
     in_stock,
     is_featured,
@@ -64,7 +68,7 @@ export class ProductService {
             : max_price
             ? LessThanOrEqual(max_price)
             : undefined,
-        on_sale,
+        for_sale,
         in_sale,
         in_stock,
         is_featured,
@@ -97,37 +101,68 @@ export class ProductService {
         take,
       }
     } catch (error) {
-      throw new InternalServerErrorException(error?.detail)
+      throw new InternalServerErrorException(error?.message || error?.detail)
     }
   }
 
-  async getProductById(id: string): Promise<ProductEntity> {
+  async findById(id: string): Promise<ProductEntity> {
     try {
       const product = await this.productRepository.findOne({
         where: {
           id,
         },
+        order: {
+          images: {
+            order: "ASC",
+          },
+        },
+        relations: {
+          images: true,
+        },
       })
       if (!product) throw new NotFoundException()
       return product
     } catch (error) {
-      throw new InternalServerErrorException(error?.detail)
+      throw new InternalServerErrorException(error?.message || error?.detail)
     }
   }
 
-  async updateProduct(id: string, data: UpdateProductDto): Promise<void> {
+  async update(id: string, data: UpdateProductDto): Promise<void> {
     try {
       await this.productRepository.update(id, data)
     } catch (error) {
-      throw new InternalServerErrorException(error?.detail)
+      throw new InternalServerErrorException(error?.message || error?.detail)
     }
   }
 
-  async deleteProduct(id: string): Promise<void> {
+  async uploadImage(
+    id: string,
+    file: Express.Multer.File,
+    order: number,
+  ): Promise<void> {
+    try {
+      const fileUpload = await this.uploadService.upload({
+        file,
+        folder: "products",
+      })
+      const productImage = this.productImageRepository.create({
+        key: fileUpload.key,
+        order,
+        product: {
+          id,
+        },
+      })
+      await this.productImageRepository.insert(productImage)
+    } catch (error) {
+      throw new InternalServerErrorException(error?.message)
+    }
+  }
+
+  async delete(id: string): Promise<void> {
     try {
       await this.productRepository.delete(id)
     } catch (error) {
-      throw new InternalServerErrorException(error?.detail)
+      throw new InternalServerErrorException(error?.message || error?.detail)
     }
   }
 }

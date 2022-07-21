@@ -30,7 +30,7 @@ export class GetProductListDto extends PaginationDto {
   @IsOptional()
   @IsBoolean()
   @Type(() => Boolean)
-  on_sale?: boolean
+  for_sale?: boolean
 
   @IsOptional()
   @IsBoolean()

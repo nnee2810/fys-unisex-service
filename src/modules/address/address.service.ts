@@ -28,14 +28,11 @@ export class AddressService {
         },
       )
     } catch (error) {
-      throw new InternalServerErrorException(error?.detail)
+      throw new InternalServerErrorException(error?.message || error?.detail)
     }
   }
 
-  async createAddress(
-    userId: string,
-    data: CreateAddressDto,
-  ): Promise<AddressEntity> {
+  async create(userId: string, data: CreateAddressDto): Promise<AddressEntity> {
     try {
       if (data.is_default) await this.removeDefaultAddress(userId)
       const address = this.addressRepository.create({
@@ -52,20 +49,20 @@ export class AddressService {
       await this.addressRepository.insert(address)
       return address
     } catch (error) {
-      throw new InternalServerErrorException(error?.detail)
+      throw new InternalServerErrorException(error?.message || error?.detail)
     }
   }
 
-  async getAddressById(id: string): Promise<AddressEntity> {
+  async findById(id: string): Promise<AddressEntity> {
     try {
       const address = await this.addressRepository.findOne({ where: { id } })
       return address
     } catch (error) {
-      throw new InternalServerErrorException(error?.detail)
+      throw new InternalServerErrorException(error?.message || error?.detail)
     }
   }
 
-  async updateAddress(
+  async update(
     userId: string,
     addressId: string,
     data: UpdateAddressDto,
@@ -77,18 +74,18 @@ export class AddressService {
       if (isString(data.address_detail))
         data.address_detail = deleteWhiteSpace(data.address_detail)
       await this.addressRepository.update(addressId, data)
-      const address = await this.getAddressById(addressId)
+      const address = await this.findById(addressId)
       return address
     } catch (error) {
-      throw new InternalServerErrorException(error?.detail)
+      throw new InternalServerErrorException(error?.message || error?.detail)
     }
   }
 
-  async deleteAddressById(id: string) {
+  async delete(id: string) {
     try {
       await this.addressRepository.delete(id)
     } catch (error) {
-      throw new InternalServerErrorException(error?.detail)
+      throw new InternalServerErrorException(error?.message || error?.detail)
     }
   }
 }

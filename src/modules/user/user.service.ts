@@ -23,11 +23,7 @@ export class UserService {
     private uploadService: UploadService,
   ) {}
 
-  async createUser({
-    phone,
-    password,
-    name,
-  }: CreateUserDto): Promise<UserEntity> {
+  async create({ phone, password, name }: CreateUserDto): Promise<UserEntity> {
     try {
       const user = this.userRepository.create({
         phone,
@@ -47,7 +43,7 @@ export class UserService {
     }
   }
 
-  async getUser({
+  async findOne({
     select,
     where,
     relations,
@@ -64,11 +60,11 @@ export class UserService {
       })
       return user
     } catch (error) {
-      throw new InternalServerErrorException(error?.detail)
+      throw new InternalServerErrorException(error?.message || error?.detail)
     }
   }
 
-  async updateUser(
+  async update(
     where: FindOptionsWhere<UserEntity>,
     data: QueryDeepPartialEntity<UserEntity>,
   ) {
@@ -84,17 +80,17 @@ export class UserService {
 
   async updateAvatar(id: string, file: Express.Multer.File): Promise<string> {
     try {
-      const fileUpload = await this.uploadService.uploadFile({
+      const fileUpload = await this.uploadService.upload({
         file,
         folder: "avatars",
       })
-      await this.updateUser(
+      await this.update(
         { id },
         {
-          avatar: fileUpload.src,
+          avatar: fileUpload.key,
         },
       )
-      return fileUpload.src
+      return fileUpload.key
     } catch (error) {
       throw new InternalServerErrorException(error?.message)
     }

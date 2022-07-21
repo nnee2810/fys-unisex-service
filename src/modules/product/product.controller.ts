@@ -7,11 +7,18 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
+  UploadedFile,
+  UseInterceptors,
 } from "@nestjs/common"
+import { FileInterceptor } from "@nestjs/platform-express"
 import { ProductEntity } from "src/entities"
-import { IPagination, IResponse, successResponse } from "src/helpers"
-import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard"
+import {
+  imageFileFilter,
+  IPagination,
+  IResponse,
+  successResponse,
+} from "src/helpers"
+import { PublicRoute } from "../auth/decorators/public-route.decorator"
 import { CreateProductDto, GetProductListDto, UpdateProductDto } from "./dto"
 import { ProductService } from "./product.service"
 
@@ -19,21 +26,21 @@ import { ProductService } from "./product.service"
 export class ProductController {
   constructor(private productService: ProductService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Post("create-product")
   async createProduct(
     @Body() body: CreateProductDto,
   ): Promise<IResponse<ProductEntity>> {
-    const product = await this.productService.createProduct(body)
+    const product = await this.productService.create(body)
     return successResponse(product, "CREATE_PRODUCT_SUCCESS")
   }
 
+  @PublicRoute()
   @Get("get-product-list")
   async getProductList(
     @Query()
     query: GetProductListDto,
   ): Promise<IResponse<IPagination<ProductEntity[]>>> {
-    const productList = await this.productService.getProductList(query)
+    const productList = await this.productService.find(query)
     return successResponse(productList, "GET_PRODUCT_LIST_SUCCESS")
   }
 
@@ -41,25 +48,42 @@ export class ProductController {
   async getProductById(
     @Param("id") id: string,
   ): Promise<IResponse<ProductEntity>> {
-    const product = await this.productService.getProductById(id)
+    const product = await this.productService.findById(id)
     return successResponse(product, "GET_PRODUCT_SUCCESS")
   }
 
-  @UseGuards(JwtAuthGuard)
   @Patch("update-product/:id")
   async updateProduct(
     @Param("id") id: string,
     @Body() body: UpdateProductDto,
   ): Promise<IResponse<null>> {
-    await this.productService.getProductById(id)
-    await this.productService.updateProduct(id, body)
+    await this.productService.update(id, body)
     return successResponse(null, "UPDATE_PRODUCT_SUCCESS")
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Post("upload-product-image/:id")
+  @UseInterceptors(
+    FileInterceptor("file", {
+      fileFilter: imageFileFilter,
+      limits: {
+        files: 1,
+        fileSize: 5 * 1024 * 1024,
+      },
+    }),
+  )
+  async uploadProductImage(
+    @Param("id") id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<IResponse<null>> {
+    const order =
+      (await this.productService.findById(id)).images.length + 1 || 1
+    await this.productService.uploadImage(id, file, order)
+    return successResponse(null, "UPLOAD_PRODUCT_IMAGE_SUCCESS")
+  }
+
   @Delete("delete-product/:id")
   async deleteProduct(@Param("id") id: string): Promise<IResponse<null>> {
-    await this.productService.deleteProduct(id)
+    await this.productService.delete(id)
     return successResponse(null, "DELETE_PRODUCT_SUCCESS")
   }
 }

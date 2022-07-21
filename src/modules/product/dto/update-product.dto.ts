@@ -29,7 +29,7 @@ export class UpdateProductDto {
 
   @IsOptional()
   @IsBoolean()
-  on_sale?: boolean
+  for_sale?: boolean
 
   @IsOptional()
   @IsBoolean()

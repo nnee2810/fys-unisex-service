@@ -13,7 +13,7 @@ export class AuthService {
   ) {}
 
   async signIn({ phone, password }: SignInByPasswordDto): Promise<string> {
-    const user = await this.userService.getUser({
+    const user = await this.userService.findOne({
       select: {
         id: true,
         password: true,

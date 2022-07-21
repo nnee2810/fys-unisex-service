@@ -9,13 +9,13 @@ import { UploadFileDto } from "./dto"
 export class UploadService {
   constructor() {}
 
-  async uploadFile({ file, folder }: UploadFileDto): Promise<FileUpload> {
+  async upload({ file, folder }: UploadFileDto): Promise<FileUpload> {
     const s3 = new S3()
     const uploadResult = await s3
       .upload({
         Bucket: process.env.AWS_BUCKET_NAME,
         Body: file.buffer,
-        Key: [folder, v4()].join(""),
+        Key: [folder, v4()].join("/"),
       })
       .promise()
     const fileUpload = {
@@ -25,7 +25,7 @@ export class UploadService {
     return fileUpload
   }
 
-  async deleteFile(key: string): Promise<void> {
+  async delete(key: string): Promise<void> {
     const s3 = new S3()
     await s3
       .deleteObject({

@@ -4,7 +4,7 @@ import { Regex } from "src/configs/constants"
 
 type FileFilterCallback = (error: Error, acceptFile: boolean) => void
 
-export function avatarFileFilter(
+export function imageFileFilter(
   req: Request,
   file: Express.Multer.File,
   callback: FileFilterCallback,

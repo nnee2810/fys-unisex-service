@@ -6,6 +6,7 @@ import { ActionOTP, SendOTPDto } from "../sms/dto"
 import { SmsService } from "../sms/sms.service"
 import { UserService } from "../user/user.service"
 import { AuthService } from "./auth.service"
+import { PublicRoute } from "./decorators/public-route.decorator"
 import { ResetPasswordDto, SignInByPasswordDto } from "./dto"
 import { SignUpDto } from "./dto/sign-up.dto"
 
@@ -20,7 +21,7 @@ export class AuthController {
 
   @Post("send-otp")
   async sendOTP(@Body() body: SendOTPDto): Promise<IResponse<string>> {
-    const user = await this.userService.getUser({
+    const user = await this.userService.findOne({
       where: {
         phone: body.phone,
       },
@@ -39,6 +40,7 @@ export class AuthController {
     return successResponse(sessionInfo, "SEND_OTP_SUCCESS")
   }
 
+  @PublicRoute()
   @Post("sign-in")
   async signIn(@Body() body: SignInByPasswordDto): Promise<IResponse<string>> {
     const accessToken = await this.authService.signIn(body)
@@ -61,12 +63,12 @@ export class AuthController {
     }: SignUpDto,
   ): Promise<IResponse<null>> {
     await this.smsService.verifyOTP({ otp, session_info })
-    const user = await this.userService.createUser({
+    const user = await this.userService.create({
       phone,
       password,
       name,
     })
-    await this.addressService.createAddress(user.id, {
+    await this.addressService.create(user.id, {
       name,
       phone,
       province_code,
@@ -83,7 +85,7 @@ export class AuthController {
     @Body() { otp, session_info, phone, password }: ResetPasswordDto,
   ): Promise<IResponse<null>> {
     await this.smsService.verifyOTP({ otp, session_info })
-    await this.userService.updateUser({ phone }, { password })
+    await this.userService.update({ phone }, { password })
     return successResponse(null, "RESET_PASSWORD_SUCCESS")
   }
 }
