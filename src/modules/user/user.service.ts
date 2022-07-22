@@ -74,11 +74,11 @@ export class UserService {
         data.password = await bcrypt.hash(data.password, 10)
       await this.userRepository.update(where, data)
     } catch (error) {
-      throw new InternalServerErrorException(error?.message)
+      throw new InternalServerErrorException(error?.message || error?.detail)
     }
   }
 
-  async updateAvatar(id: string, file: Express.Multer.File): Promise<string> {
+  async uploadAvatar(id: string, file: Express.Multer.File): Promise<string> {
     try {
       const fileUpload = await this.uploadService.upload({
         file,
@@ -92,7 +92,7 @@ export class UserService {
       )
       return fileUpload.key
     } catch (error) {
-      throw new InternalServerErrorException(error?.message)
+      throw new InternalServerErrorException(error?.message || error?.detail)
     }
   }
 }

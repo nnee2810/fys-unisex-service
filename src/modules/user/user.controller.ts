@@ -78,7 +78,7 @@ export class UserController {
     return successResponse(null, "UPDATE_PHONE_SUCCESS")
   }
 
-  @Patch("update-avatar")
+  @Post("upload-avatar")
   @UseInterceptors(
     FileInterceptor("file", {
       fileFilter: imageFileFilter,
@@ -88,13 +88,13 @@ export class UserController {
       },
     }),
   )
-  async updateAvatar(
+  async uploadAvatar(
     @Req() req: RequestWithUser,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<IResponse<string>> {
     if (req.user.avatar) await this.uploadService.delete(req.user.avatar)
-    const key = await this.userService.updateAvatar(req.user.id, file)
-    return successResponse(key, "UPDATE_AVATAR_SUCCESS")
+    const key = await this.userService.uploadAvatar(req.user.id, file)
+    return successResponse(key, "UPLOAD_AVATAR_SUCCESS")
   }
 
   @Post("create-address")

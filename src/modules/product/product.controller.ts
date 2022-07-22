@@ -19,12 +19,16 @@ import {
   successResponse,
 } from "src/helpers"
 import { PublicRoute } from "../auth/decorators/public-route.decorator"
+import { UploadService } from "../upload/upload.service"
 import { CreateProductDto, GetProductListDto, UpdateProductDto } from "./dto"
 import { ProductService } from "./product.service"
 
 @Controller("product")
 export class ProductController {
-  constructor(private productService: ProductService) {}
+  constructor(
+    private productService: ProductService,
+    private uploadService: UploadService,
+  ) {}
 
   @Post("create-product")
   async createProduct(
@@ -44,6 +48,7 @@ export class ProductController {
     return successResponse(productList, "GET_PRODUCT_LIST_SUCCESS")
   }
 
+  @PublicRoute()
   @Get("get-product/:id")
   async getProductById(
     @Param("id") id: string,
@@ -61,7 +66,13 @@ export class ProductController {
     return successResponse(null, "UPDATE_PRODUCT_SUCCESS")
   }
 
-  @Post("upload-product-image/:id")
+  @Delete("delete-product/:id")
+  async deleteProduct(@Param("id") id: string): Promise<IResponse<null>> {
+    await this.productService.delete(id)
+    return successResponse(null, "DELETE_PRODUCT_SUCCESS")
+  }
+
+  @Post("upload-image/:id")
   @UseInterceptors(
     FileInterceptor("file", {
       fileFilter: imageFileFilter,
@@ -81,9 +92,12 @@ export class ProductController {
     return successResponse(null, "UPLOAD_PRODUCT_IMAGE_SUCCESS")
   }
 
-  @Delete("delete-product/:id")
-  async deleteProduct(@Param("id") id: string): Promise<IResponse<null>> {
-    await this.productService.delete(id)
-    return successResponse(null, "DELETE_PRODUCT_SUCCESS")
+  @Delete("delete-image/:key")
+  async deleteProductImage(
+    @Param("key") key: string,
+  ): Promise<IResponse<null>> {
+    await this.uploadService.delete(key)
+    await this.productService.deleteImage(key)
+    return successResponse(null, "DELETE_PRODUCT_IMAGE_SUCCESS")
   }
 }

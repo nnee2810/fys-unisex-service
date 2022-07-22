@@ -135,6 +135,14 @@ export class ProductService {
     }
   }
 
+  async delete(id: string): Promise<void> {
+    try {
+      await this.productRepository.delete(id)
+    } catch (error) {
+      throw new InternalServerErrorException(error?.message || error?.detail)
+    }
+  }
+
   async uploadImage(
     id: string,
     file: Express.Multer.File,
@@ -154,13 +162,15 @@ export class ProductService {
       })
       await this.productImageRepository.insert(productImage)
     } catch (error) {
-      throw new InternalServerErrorException(error?.message)
+      throw new InternalServerErrorException(error?.message || error?.detail)
     }
   }
 
-  async delete(id: string): Promise<void> {
+  async deleteImage(key: string) {
     try {
-      await this.productRepository.delete(id)
+      await this.productImageRepository.delete({
+        key,
+      })
     } catch (error) {
       throw new InternalServerErrorException(error?.message || error?.detail)
     }
