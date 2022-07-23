@@ -19,6 +19,7 @@ export class AuthController {
     private addressService: AddressService,
   ) {}
 
+  @PublicRoute()
   @Post("send-otp")
   async sendOTP(@Body() body: SendOTPDto): Promise<IResponse<string>> {
     const user = await this.userService.findOne({
@@ -47,6 +48,7 @@ export class AuthController {
     return successResponse(accessToken, "SIGN_IN_SUCCESS")
   }
 
+  @PublicRoute()
   @Post("sign-up")
   async signUp(
     @Body()
@@ -80,6 +82,7 @@ export class AuthController {
     return successResponse(null, "SIGN_UP_SUCCESS")
   }
 
+  @PublicRoute()
   @Post("reset-password")
   async resetPassword(
     @Body() { otp, session_info, phone, password }: ResetPasswordDto,

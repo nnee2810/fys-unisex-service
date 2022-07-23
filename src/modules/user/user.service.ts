@@ -80,17 +80,14 @@ export class UserService {
 
   async uploadAvatar(id: string, file: Express.Multer.File): Promise<string> {
     try {
-      const fileUpload = await this.uploadService.upload({
-        file,
-        folder: "avatars",
-      })
+      const key = await this.uploadService.upload("avatars", file)
       await this.update(
         { id },
         {
-          avatar: fileUpload.key,
+          avatar: key,
         },
       )
-      return fileUpload.key
+      return key
     } catch (error) {
       throw new InternalServerErrorException(error?.message || error?.detail)
     }

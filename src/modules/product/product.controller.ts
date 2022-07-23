@@ -72,7 +72,7 @@ export class ProductController {
     return successResponse(null, "DELETE_PRODUCT_SUCCESS")
   }
 
-  @Post("upload-image/:id")
+  @Post("upload-product-image/:id")
   @UseInterceptors(
     FileInterceptor("file", {
       fileFilter: imageFileFilter,
@@ -92,12 +92,9 @@ export class ProductController {
     return successResponse(null, "UPLOAD_PRODUCT_IMAGE_SUCCESS")
   }
 
-  @Delete("delete-image/:key")
-  async deleteProductImage(
-    @Param("key") key: string,
-  ): Promise<IResponse<null>> {
-    await this.uploadService.delete(key)
-    await this.productService.deleteImage(key)
+  @Delete("delete-product-image/:id")
+  async deleteProductImage(@Param("id") id: string): Promise<IResponse<null>> {
+    await this.productService.deleteImage(id)
     return successResponse(null, "DELETE_PRODUCT_IMAGE_SUCCESS")
   }
 }

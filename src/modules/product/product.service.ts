@@ -149,12 +149,9 @@ export class ProductService {
     order: number,
   ): Promise<void> {
     try {
-      const fileUpload = await this.uploadService.upload({
-        file,
-        folder: "products",
-      })
+      const key = await this.uploadService.upload("products", file)
       const productImage = this.productImageRepository.create({
-        key: fileUpload.key,
+        key,
         order,
         product: {
           id,
@@ -166,11 +163,12 @@ export class ProductService {
     }
   }
 
-  async deleteImage(key: string) {
+  async deleteImage(id: string) {
     try {
-      await this.productImageRepository.delete({
-        key,
-      })
+      const file = await this.productImageRepository.findOne({ where: { id } })
+      if (!file) throw new NotFoundException()
+      await this.uploadService.delete(file.key)
+      await this.productImageRepository.delete(id)
     } catch (error) {
       throw new InternalServerErrorException(error?.message || error?.detail)
     }
