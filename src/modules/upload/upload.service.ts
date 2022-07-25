@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common"
 import { S3 } from "aws-sdk"
+import { ObjectIdentifierList } from "aws-sdk/clients/s3"
 import { v4 } from "uuid"
 
 @Injectable()
@@ -25,6 +26,18 @@ export class UploadService {
       .deleteObject({
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: key,
+      })
+      .promise()
+  }
+
+  async bulkDelete(list: ObjectIdentifierList): Promise<void> {
+    const s3 = new S3()
+    await s3
+      .deleteObjects({
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Delete: {
+          Objects: list,
+        },
       })
       .promise()
   }

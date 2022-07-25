@@ -4,7 +4,7 @@ import { FileUploadEntity, ProductEntity } from "."
 @Entity("product_images")
 export class ProductImageEntity extends FileUploadEntity {
   @Column()
-  order: number
+  position: number
 
   @ManyToOne(() => ProductEntity, (product) => product.images, {
     onDelete: "CASCADE",

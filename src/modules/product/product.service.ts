@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
+import { ObjectIdentifierList } from "aws-sdk/clients/s3"
 import { ProductEntity, ProductImageEntity } from "src/entities"
 import { IPagination } from "src/helpers"
 import {
@@ -12,6 +13,7 @@ import {
   FindOptionsWhere,
   ILike,
   LessThanOrEqual,
+  MoreThan,
   MoreThanOrEqual,
   Repository,
 } from "typeorm"
@@ -82,6 +84,9 @@ export class ProductService {
             ? "desc"
             : undefined,
         updated_at: "desc",
+        images: {
+          position: "asc",
+        },
       }
 
       const [data, total] = await this.productRepository.findAndCount({
@@ -113,7 +118,7 @@ export class ProductService {
         },
         order: {
           images: {
-            order: "ASC",
+            position: "asc",
           },
         },
         relations: {
@@ -137,22 +142,30 @@ export class ProductService {
 
   async delete(id: string): Promise<void> {
     try {
+      const images: ObjectIdentifierList = (
+        await this.productImageRepository.find({
+          where: { product: { id } },
+        })
+      ).map((item) => ({ Key: item.key }))
+      if (images.length) await this.uploadService.bulkDelete(images)
       await this.productRepository.delete(id)
     } catch (error) {
       throw new InternalServerErrorException(error?.message || error?.detail)
     }
   }
 
-  async uploadImage(
-    id: string,
-    file: Express.Multer.File,
-    order: number,
-  ): Promise<void> {
+  async uploadImage(id: string, file: Express.Multer.File): Promise<void> {
     try {
+      const position =
+        (
+          await this.productImageRepository.find({
+            where: { product: { id } },
+          })
+        ).length + 1
       const key = await this.uploadService.upload("products", file)
       const productImage = this.productImageRepository.create({
         key,
-        order,
+        position,
         product: {
           id,
         },
@@ -165,10 +178,21 @@ export class ProductService {
 
   async deleteImage(id: string) {
     try {
-      const file = await this.productImageRepository.findOne({ where: { id } })
+      const file = await this.productImageRepository.findOne({
+        where: { id },
+        relations: { product: true },
+      })
       if (!file) throw new NotFoundException()
       await this.uploadService.delete(file.key)
       await this.productImageRepository.delete(id)
+      await this.productImageRepository.decrement(
+        {
+          position: MoreThan(file.position),
+          product: { id: file.product.id },
+        },
+        "position",
+        1,
+      )
     } catch (error) {
       throw new InternalServerErrorException(error?.message || error?.detail)
     }

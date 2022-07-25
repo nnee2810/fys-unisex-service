@@ -19,16 +19,12 @@ import {
   successResponse,
 } from "src/helpers"
 import { PublicRoute } from "../auth/decorators/public-route.decorator"
-import { UploadService } from "../upload/upload.service"
 import { CreateProductDto, GetProductListDto, UpdateProductDto } from "./dto"
 import { ProductService } from "./product.service"
 
 @Controller("product")
 export class ProductController {
-  constructor(
-    private productService: ProductService,
-    private uploadService: UploadService,
-  ) {}
+  constructor(private productService: ProductService) {}
 
   @Post("create-product")
   async createProduct(
@@ -86,9 +82,7 @@ export class ProductController {
     @Param("id") id: string,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<IResponse<null>> {
-    const order =
-      (await this.productService.findById(id)).images.length + 1 || 1
-    await this.productService.uploadImage(id, file, order)
+    await this.productService.uploadImage(id, file)
     return successResponse(null, "UPLOAD_PRODUCT_IMAGE_SUCCESS")
   }
 
