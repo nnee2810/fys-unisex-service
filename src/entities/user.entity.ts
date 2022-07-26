@@ -54,7 +54,7 @@ export class UserEntity extends BaseEntity {
   @OneToMany(() => AddressEntity, (address) => address.user, {
     nullable: true,
   })
-  address_list?: AddressEntity[]
+  addresses?: AddressEntity[]
 
   @BeforeInsert()
   async transformValues() {

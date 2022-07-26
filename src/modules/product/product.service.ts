@@ -20,7 +20,7 @@ import {
 import { UploadService } from "../upload/upload.service"
 import {
   CreateProductDto,
-  GetProductListDto,
+  GetProductsDto,
   ProductSort,
   UpdateProductDto,
 } from "./dto"
@@ -57,7 +57,7 @@ export class ProductService {
     sort,
     page,
     take,
-  }: GetProductListDto): Promise<IPagination<ProductEntity[]>> {
+  }: GetProductsDto): Promise<IPagination<ProductEntity[]>> {
     try {
       const where: FindOptionsWhere<ProductEntity> = {
         name: name && ILike("%" + name + "%"),

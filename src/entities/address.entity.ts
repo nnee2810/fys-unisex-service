@@ -29,7 +29,7 @@ export class AddressEntity extends BaseEntity {
   @Column()
   is_default: boolean
 
-  @ManyToOne(() => UserEntity, (user) => user.address_list, {
+  @ManyToOne(() => UserEntity, (user) => user.addresses, {
     onDelete: "CASCADE",
   })
   @JoinColumn({ name: "user_id" })

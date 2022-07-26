@@ -106,19 +106,19 @@ export class UserController {
     return successResponse(address, "CREATE_ADDRESS_SUCCESS")
   }
 
-  @Get("get-address-list")
-  async getAddressList(
+  @Get("get-addresses")
+  async getAddresses(
     @Req() req: RequestWithUser,
   ): Promise<IResponse<AddressEntity[]>> {
-    const addressList = (
+    const addresses = (
       await this.userService.findOne({
         where: { id: req.user.id },
         relations: {
-          address_list: true,
+          addresses: true,
         },
       })
-    ).address_list
-    return successResponse(addressList, "GET_ADDRESS_LIST_SUCCESS")
+    ).addresses
+    return successResponse(addresses, "GET_ADDRESSES_SUCCESS")
   }
 
   @Patch("update-address/:id")

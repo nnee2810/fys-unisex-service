@@ -11,15 +11,15 @@ import {
   UseInterceptors,
 } from "@nestjs/common"
 import { FileInterceptor } from "@nestjs/platform-express"
-import { ProductEntity } from "src/entities"
+import { ProductEntity, UserRole } from "src/entities"
 import {
   imageFileFilter,
   IPagination,
   IResponse,
   successResponse,
 } from "src/helpers"
-import { PublicRoute } from "../auth/decorators/public-route.decorator"
-import { CreateProductDto, GetProductListDto, UpdateProductDto } from "./dto"
+import { PublicRoute, Roles } from "../auth/decorators"
+import { CreateProductDto, GetProductsDto, UpdateProductDto } from "./dto"
 import { ProductService } from "./product.service"
 
 @Controller("product")
@@ -27,6 +27,7 @@ export class ProductController {
   constructor(private productService: ProductService) {}
 
   @Post("create-product")
+  @Roles([UserRole.MOD, UserRole.ADMIN])
   async createProduct(
     @Body() body: CreateProductDto,
   ): Promise<IResponse<ProductEntity>> {
@@ -35,13 +36,13 @@ export class ProductController {
   }
 
   @PublicRoute()
-  @Get("get-product-list")
-  async getProductList(
+  @Get("get-products")
+  async getProducts(
     @Query()
-    query: GetProductListDto,
+    query: GetProductsDto,
   ): Promise<IResponse<IPagination<ProductEntity[]>>> {
-    const productList = await this.productService.find(query)
-    return successResponse(productList, "GET_PRODUCT_LIST_SUCCESS")
+    const products = await this.productService.find(query)
+    return successResponse(products, "GET_PRODUCTS_SUCCESS")
   }
 
   @PublicRoute()
@@ -54,6 +55,7 @@ export class ProductController {
   }
 
   @Patch("update-product/:id")
+  @Roles([UserRole.MOD, UserRole.ADMIN])
   async updateProduct(
     @Param("id") id: string,
     @Body() body: UpdateProductDto,
@@ -63,12 +65,14 @@ export class ProductController {
   }
 
   @Delete("delete-product/:id")
+  @Roles([UserRole.MOD, UserRole.ADMIN])
   async deleteProduct(@Param("id") id: string): Promise<IResponse<null>> {
     await this.productService.delete(id)
     return successResponse(null, "DELETE_PRODUCT_SUCCESS")
   }
 
   @Post("upload-product-image/:id")
+  @Roles([UserRole.MOD, UserRole.ADMIN])
   @UseInterceptors(
     FileInterceptor("file", {
       fileFilter: imageFileFilter,
@@ -86,6 +90,7 @@ export class ProductController {
     return successResponse(null, "UPLOAD_PRODUCT_IMAGE_SUCCESS")
   }
 
+  @Roles([UserRole.MOD, UserRole.ADMIN])
   @Delete("delete-product-image/:id")
   async deleteProductImage(@Param("id") id: string): Promise<IResponse<null>> {
     await this.productService.deleteImage(id)
